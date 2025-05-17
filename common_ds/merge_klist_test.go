@@ -25,30 +25,51 @@ func compareNdCreate(llA **ListNode, llB **ListNode) *ListNode {
 }
 
 func merge(llA *ListNode, llB *ListNode) *ListNode {
-	var head *ListNode
-
-	head = compareNdCreate(&llA, &llB)
-	prev := head
+	headA := &ListNode{Val: -1, Next: nil}
+	headA.Next = llA
+	prevA := headA
 
 	for llA != nil && llB != nil {
-		prev.Next = compareNdCreate(&llA, &llB)
-		prev = prev.Next
-		_logLink(head)
-	}
 
-	for llA != nil {
-		prev.Next = &ListNode{Val: llA.Val, Next: nil}
-		prev = prev.Next
-		llA = llA.Next
+		_logLink(headA)
+		fmt.Println("prevA->", prevA.Val, "LLA->", llA.Val, "LLB->", llB.Val)
+		fmt.Println()
+
+		if llA.Val <= llB.Val {
+			prevA = llA
+			llA = llA.Next
+		} else {
+			copyNextB := llB.Next
+
+			prevA.Next = llB
+			prevA = prevA.Next
+			llB = copyNextB
+		}
+		if llB.Val <= llA.Val {
+			// establish current llb link in the LLA list
+			nextB := llB.Next // first: copy where LLB is pointing t
+			prevA.Next = llB  // insert : prevA -> LLB
+			llB.Next = llA    // insert: set LLB.Next -> LLA
+
+			// move forward
+			prevA = prevA.Next //  move prevA reference to its next
+			llB = nextB        // forward LLB to the copied address
+
+		} else {
+			prevA = llA    // forward back pointer
+			llA = llA.Next // forward LLA
+
+		}
+
 	}
 
 	for llB != nil {
-		prev.Next = &ListNode{Val: llB.Val, Next: nil}
-		prev = prev.Next
+		prevA.Next = llB
+		prevA = prevA.Next
 		llB = llB.Next
 	}
 
-	return head
+	return headA.Next
 
 }
 
@@ -116,13 +137,13 @@ func _createLinkedList(arr []int) *ListNode {
 }
 func TestMergeKLists(t *testing.T) {
 
-	arrA := []int{1, 4, 5}
-	arrB := []int{1, 3, 4, 6, 7}
+	arrA := []int{2, 4, 7, 8}
+	arrB := []int{1, 2, 4, 5, 9}
 	var llA *ListNode = _createLinkedList(arrA)
 	var llB *ListNode = _createLinkedList(arrB)
 
-	_logLink(llA)
-	_logLink(llB)
+	//_logLink(llA)
+	//_logLink(llB)
 	llNew := merge(llA, llB)
 
 	_logLink(llNew)
