@@ -10,20 +10,6 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func compareNdCreate(llA **ListNode, llB **ListNode) *ListNode {
-	var aNode *ListNode = new(ListNode)
-
-	if (*llA).Val <= (*llB).Val {
-		aNode.Val = (*llA).Val
-		*llA = (*llA).Next
-	} else {
-		aNode.Val = (*llB).Val
-		*llB = (*llB).Next
-	}
-
-	return aNode
-}
-
 func merge(llA *ListNode, llB *ListNode) *ListNode {
 	headA := &ListNode{Val: -1, Next: nil}
 	headA.Next = llA
@@ -31,34 +17,17 @@ func merge(llA *ListNode, llB *ListNode) *ListNode {
 
 	for llA != nil && llB != nil {
 
-		_logLink(headA)
-		fmt.Println("prevA->", prevA.Val, "LLA->", llA.Val, "LLB->", llB.Val)
-		fmt.Println()
+		//fmt.Println("prevA->", prevA.Val, "LLA->", llA.Val, "LLB->", llB.Val)
 
-		if llA.Val <= llB.Val {
-			prevA = llA
-			llA = llA.Next
+		if llA.Val <= llB.Val { // move llA pointers: llA & prevA
+			prevA = llA    // llA is prevA.Next
+			llA = llA.Next // move llA to its next
 		} else {
 			copyNextB := llB.Next
-
 			prevA.Next = llB
+			llB.Next = llA
 			prevA = prevA.Next
 			llB = copyNextB
-		}
-		if llB.Val <= llA.Val {
-			// establish current llb link in the LLA list
-			nextB := llB.Next // first: copy where LLB is pointing t
-			prevA.Next = llB  // insert : prevA -> LLB
-			llB.Next = llA    // insert: set LLB.Next -> LLA
-
-			// move forward
-			prevA = prevA.Next //  move prevA reference to its next
-			llB = nextB        // forward LLB to the copied address
-
-		} else {
-			prevA = llA    // forward back pointer
-			llA = llA.Next // forward LLA
-
 		}
 
 	}
@@ -85,13 +54,15 @@ func mergeItems(listLL []*ListNode) *ListNode {
 		start = 0
 	} else {
 		itemSlice = make([]*ListNode, (l/2)+1)
-		itemSlice = append(itemSlice, listLL[0])
+		itemSlice[0] = listLL[0]
 		start = 1
 	}
 
+	jdx := start
 	for idx := start; idx < l; idx += 2 {
 		item := merge(listLL[idx], listLL[idx+1])
-		itemSlice = append(itemSlice, item)
+		itemSlice[jdx] = item // merge listLL[idx] and listLL[idx+1]
+		jdx++
 	}
 
 	if len(itemSlice) > 1 {
@@ -126,25 +97,41 @@ func _logLink(ll *ListNode) {
 	fmt.Println()
 }
 
-func _createLinkedList(arr []int) *ListNode {
-	head := &ListNode{Val: arr[0], Next: nil}
-	var prev *ListNode = head
-	for idx := 1; idx < len(arr); idx++ {
-		prev.Next = &ListNode{Val: arr[idx], Next: nil}
-		prev = prev.Next
+func _createLLArr(arr [][]int) []*ListNode {
+
+	var llArr []*ListNode = make([]*ListNode, len(arr), len(arr))
+
+	for idx := 0; idx < len(arr); idx++ {
+		elmArr := arr[idx]
+		llArr[idx] = &ListNode{Val: elmArr[0], Next: nil}
+		head := llArr[idx] // head of the linked list for this arr dat
+
+		for jdx := 1; jdx < len(elmArr); jdx++ {
+			head.Next = &ListNode{Val: elmArr[jdx], Next: nil}
+			head = head.Next
+		}
 	}
-	return head
+
+	return llArr
+
 }
+
 func TestMergeKLists(t *testing.T) {
 
-	arrA := []int{2, 4, 7, 8}
-	arrB := []int{1, 2, 4, 5, 9}
-	var llA *ListNode = _createLinkedList(arrA)
-	var llB *ListNode = _createLinkedList(arrB)
+	arr1 := [][]int{
+		{1, 4, 5},
+		{1, 3, 4},
+		{2, 6},
+		//	{2, 3, 7, 8}, // the last comma is needed
+	}
 
-	//_logLink(llA)
-	//_logLink(llB)
-	llNew := merge(llA, llB)
+	llArr := _createLLArr(arr1)
 
-	_logLink(llNew)
+	// for idx := 0; idx < len(llArr); idx++ {
+	// 	_logLink(llArr[idx])
+	// }
+
+	result := mergeKLists(llArr)
+	fmt.Println("\nFinal Result:")
+	_logLink(result)
 }
