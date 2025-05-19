@@ -1,34 +1,38 @@
 package common_ds
 
 import (
-	"container/list"
+	"fmt"
 	"testing"
 )
 
-type Item struct {
-	Val int
-	Idx int
-}
-
 // calculate a relation arr: next idx with equal or greater height of current idx
 func computeIdxBound(hArr []int) []int {
-	stack := list.New()
-	nextIdxBound := make([]int, len(hArr)) // initialize with zeroed value
-	rdx := len(hArr) - 1
-	stack.PushFront(Item{Val: hArr[rdx], Idx: rdx})
+	size := len(hArr)
 
-	for ldx := rdx - 1; ldx >= 0; ldx-- {
+	nextHigherIdx := make([]int, size, size) // initialize with zeroed value
+	stack := make([]int, 0, size)
+	for ldx := size - 1; ldx >= 0; ldx-- {
 		lval := hArr[ldx]
+		nextHigh := ldx
+		fmt.Println("ldx->", ldx, "stack", stack)
+		for len(stack) > 0 {
+			topIdx := stack[len(stack)-1]
+			topVal := hArr[topIdx]
+			fmt.Println("topVal->", topVal, "lval->", lval)
 
-		for topItem := stack.Front().Value.(Item); stack.Len() > 0 && topItem.Val < lval; {
-			stack.Remove(stack.Front()) // pop every item less than current value
-			topItem = stack.Front().Value.(Item)
+			if topVal < lval {
+				stack = stack[:len(stack)-1]
+			} else {
+				nextHigh = topIdx
+				break
+			}
+
 		}
-		nextIdxBound[ldx] = topItem.Idx
-		stack.PushFront(Item{Val: lval, Idx: ldx})
+		nextHigherIdx[ldx] = nextHigh
+		stack.PushFront(ldx)
 	}
 
-	return nextIdxBound
+	return nextHigherIdx
 }
 
 func trap(hArr []int) int {
@@ -49,6 +53,14 @@ func trap(hArr []int) int {
 	}
 
 	return trapped
+}
+
+func TestNextHigher(t *testing.T) {
+	arr := []int{4, 5, 3}
+	nextHigher := computeIdxBound(arr)
+
+	fmt.Println("next higher->", nextHigher)
+
 }
 
 func TestTrap(t *testing.T) {
