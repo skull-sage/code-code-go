@@ -5,65 +5,53 @@ import (
 	"testing"
 )
 
-// calculate a relation arr: next idx with equal or greater height of current idx
-func computeIdxBound(hArr []int) []int {
-	size := len(hArr)
-
-	nextHigherIdx := make([]int, size, size) // initialize with zeroed value
-	stack := make([]int, 0, size)
-	for ldx := size - 1; ldx >= 0; ldx-- {
-		lval := hArr[ldx]
-		nextHigh := ldx
-		fmt.Println("ldx->", ldx, "stack", stack)
-		for len(stack) > 0 {
-			topIdx := stack[len(stack)-1]
-			topVal := hArr[topIdx]
-			fmt.Println("topVal->", topVal, "lval->", lval)
-
-			if topVal < lval {
-				stack = stack[:len(stack)-1]
-			} else {
-				nextHigh = topIdx
-				break
-			}
-
-		}
-		nextHigherIdx[ldx] = nextHigh
-		stack.PushFront(ldx)
-	}
-
-	return nextHigherIdx
-}
-
 func trap(hArr []int) int {
 	// find the max height
 
 	trapped := 0
-	nextIdxBound := computeIdxBound(hArr)
+	maxHeight := hArr[0]
+	maxHeightIdx := 0
 
-	for ldx := 0; ldx < len(hArr); ldx++ {
-
-		nextIdx := nextIdxBound[ldx]
-
-		for idx := ldx + 1; idx < nextIdx; idx++ {
-			trapped += hArr[ldx] - hArr[idx]
+	for idx := 1; idx < len(hArr); idx++ {
+		if hArr[idx] > maxHeight {
+			maxHeight = hArr[idx]
+			maxHeightIdx = idx
 		}
-		// shift ldx to nextIdx
-		ldx = nextIdx + 1
+	}
+
+	// left to right scan
+	for ldx := 0; ldx < maxHeightIdx; {
+		tmpTrapped := 0
+
+		start := hArr[ldx]
+		rdx := ldx + 1
+
+		for ; rdx < maxHeightIdx && hArr[rdx] < start; rdx++ {
+			tmpTrapped += (start - hArr[rdx])
+		}
+		ldx = rdx
+		//fmt.Println("start:", start, "end:", hArr[ldx], "tmpTrapped:", tmpTrapped)
+		trapped += tmpTrapped
+
+	}
+
+	for rdx := len(hArr) - 1; rdx > maxHeightIdx; {
+
+		tmpTrapped := 0
+		start := hArr[rdx]
+		ldx := rdx - 1
+		for ; ldx > maxHeightIdx && hArr[ldx] < start; ldx-- {
+			tmpTrapped += (start - hArr[ldx])
+		}
+		rdx = ldx
+		trapped += tmpTrapped
 	}
 
 	return trapped
 }
 
-func TestNextHigher(t *testing.T) {
-	arr := []int{4, 5, 3}
-	nextHigher := computeIdxBound(arr)
-
-	fmt.Println("next higher->", nextHigher)
-
-}
-
 func TestTrap(t *testing.T) {
-	arr := []int{0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1}
-	trap(arr)
+	arr := []int{2, 3, 4}
+	trapped := trap(arr)
+	fmt.Println("Trapped ", trapped)
 }
