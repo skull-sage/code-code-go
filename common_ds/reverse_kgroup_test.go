@@ -1,28 +1,28 @@
 package common_ds
 
 import (
-	"fmt"
 	"testing"
 )
 
 func reverse_segment(start *ListNode, end *ListNode) *ListNode {
 
-	if start == end || start.Next == end || end == nil {
+	if start == end || end == nil {
 		return end
 	}
 
 	//var prev *ListNode
-	var prev *ListNode = start // 1
-	curr := start.Next         // 2
-	for curr.Next != end && curr != nil {
+	prev := start      // 1
+	curr := start.Next // 2
+	tail := end.Next
+	for curr != tail && curr != nil {
 		nextCurr := curr.Next
 		curr.Next = prev
 		prev = curr
 		curr = nextCurr
-		fmt.Println("curr", curr.Val, "prev", prev.Val)
+
 	}
 
-	start.Next = end
+	start.Next = nil
 	return prev
 
 }
@@ -37,19 +37,16 @@ func reverseKGroup(head *ListNode, k int) *ListNode {
 	end := head.Next
 	count := 1
 	for count < k && end != nil {
-		end = end.Next //
+		end = end.Next //{3, 2}
 		count++
 	}
 
 	if end == nil && count < k {
 		return head
-	} else if end != nil {
-		reverseKGroup(end, k)
-
+	} else if end.Next == nil {
+		head = reverse_segment(start, end)
 	} else {
-
-		reverse_segment(start, end)
-
+		reverseKGroup(end.Next, k)
 	}
 
 	return head
@@ -70,14 +67,9 @@ func TestLLRevers(t *testing.T) {
 	arr := []int{1, 2, 3, 4, 5}
 	ll := createLL(arr)
 
-	start := ll
-	end := ll.Next.Next.Next
-	fmt.Println("start", start.Val, "end", end.Val)
-	ll = reverse_segment(start, end)
-
-	fmt.Println(ll.Val, ll.Next.Val, ll.Next.Next.Val)
+	ll = reverseKGroup(ll, 3)
 
 	//ll = reverseKGroup(ll, 3)
 
-	//_logLink(ll)
+	_logLink(ll)
 }
