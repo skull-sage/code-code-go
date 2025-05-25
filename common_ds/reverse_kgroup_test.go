@@ -29,31 +29,34 @@ func reverse_segment(start *ListNode, end *ListNode) *ListNode {
 
 func reverseKGroup(head *ListNode, k int) *ListNode {
 
-	if k == 1 {
-		return head
-	}
-
+	//fmt.Println("head", head.Val)
 	start := head
-	end := head.Next
+	end := head
 	count := 1
 	for count < k && end != nil {
 		end = end.Next //{3, 2}
 		count++
 	}
 
-	if end == nil && count < k {
+	//fmt.Println("start", start.Val, "end", end, "count", count)
+
+	if end == nil && count <= k {
 		return head
-	} else if end.Next == nil {
+
+	} else { // count == k
+		var tail *ListNode
+		if end.Next != nil {
+			tail = reverseKGroup(end.Next, k)
+		}
 		head = reverse_segment(start, end)
-	} else {
-		reverseKGroup(end.Next, k)
+		start.Next = tail
 	}
 
 	return head
 
 }
 
-func createLL(arr []int) *ListNode {
+func CreateLL(arr []int) *ListNode {
 	head := &ListNode{Val: arr[0], Next: nil}
 	curr := head
 	for idx := 1; idx < len(arr); idx++ {
@@ -64,8 +67,8 @@ func createLL(arr []int) *ListNode {
 }
 
 func TestLLRevers(t *testing.T) {
-	arr := []int{1, 2, 3, 4, 5}
-	ll := createLL(arr)
+	arr := []int{1, 2, 3, 4, 5, 6, 7, 8}
+	ll := CreateLL(arr)
 
 	ll = reverseKGroup(ll, 3)
 
