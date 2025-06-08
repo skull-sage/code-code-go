@@ -7,21 +7,21 @@ import (
 
 func computePrefix(P string) []int {
 	m := len(P)
-	prf := make([]int, m, m)
+	prf := make([]int, m+1, m+1)
 	k := 0
-	for q := 1; q < m; q++ {
-		fmt.Printf("#itr: P[q=%d] = %c, P[k=%d] = %c\n", q, P[q], k, P[k])
+	for q := 2; q <= m; q++ {
+		fmt.Printf("#itr: P[q=%d] = %c, P[k=%d] = %c\n", q-1, P[q-1], k, P[k])
 		// skip finding prefix as for k = 0 as ther is no match
-		for k > 0 && P[k] != P[q] {
+		for k > 0 && P[k] != P[q-1] {
 			k = prf[k]
 		}
-		if P[k] == P[q] {
+		if P[k] == P[q-1] {
 			k = k + 1
 		}
 
 		prf[q] = k
 
-		fmt.Println("      result:", prf)
+		fmt.Println("      result:", "k=", k, prf[1:])
 		fmt.Println()
 	}
 
@@ -29,6 +29,7 @@ func computePrefix(P string) []int {
 }
 
 func TestKMP(t *testing.T) {
-	P := "abacaba"
+	//P := "abacaba"
+	P := "abcdabcdabab"
 	computePrefix(P)
 }
