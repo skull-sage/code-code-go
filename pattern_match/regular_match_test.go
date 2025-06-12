@@ -1,42 +1,60 @@
 package pattern_match
 
 import (
-	"fmt"
 	"testing"
 )
 
-func isMatch(text string, pattern string) bool {
-	n := len(text)
+type Element struct {
+	val        byte
+	hasStar    bool
+	leastCount int
+}
+
+func simplifyPattern(pattern string) []Element {
 	m := len(pattern)
+	pt := make([]Element, 0, m)
 
-	dpArr := make([][]bool, (n+1)*(m+1))
+	for i := 0; i < m; {
+		val := pattern[i]
+		hasStar := false
+		leastCount := 0
 
-	for i := 0; i < n+1; i++  {
-        if (p[i] == '*' && dp[0][i-1]) {
-            dp[0][i+1] = true;
-        }
-    }
-	
-    for (int i = 0 ; i < s.length(); i++) {
-        for (int j = 0; j < p.length(); j++) {
-            if (p.charAt(j) == '.') {
-                dp[i+1][j+1] = dp[i][j];
-            }
-            if (p.charAt(j) == s.charAt(i)) {
-                dp[i+1][j+1] = dp[i][j];
-            }
-            if (p.charAt(j) == '*') {
-                if (p.charAt(j-1) != s.charAt(i) && p.charAt(j-1) != '.') {
-                    dp[i+1][j+1] = dp[i+1][j-1];
-                } else {
-                    dp[i+1][j+1] = (dp[i+1][j] || dp[i][j+1] || dp[i+1][j-1]);
-                }
-            }
-        }
-    }
-    return dp[s.length()][p.length()]; 
+		j := i + 1
+		for j < m && pattern[j] == val {
+
+			if pattern[j+1] == '*' {
+				hasStar = true
+				j = j + 2
+
+			} else {
+				j = j + 1
+				leastCount++
+			}
+		}
+		pt = append(pt, Element{val, hasStar, leastCount})
+		i = j
+
+	}
+
+	return pt
+}
+
+// i write my own way to solve
+func isMatch(text string, pattern string) bool {
+	pt := simplifyPattern(pattern)
+	txt := simplifyText(text)
+
 }
 
 func TestIsMatch(t *testing.T) {
 
+	var text string
+	var pattern string
+
+	text = "aa"
+	pattern = "a"
+
+	if isMatch(text, pattern) {
+		t.Errorf("expect false, but got true")
+	}
 }
