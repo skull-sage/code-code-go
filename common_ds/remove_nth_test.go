@@ -1,7 +1,6 @@
 package common_ds
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -21,7 +20,7 @@ func removeNthFromEnd(head *ListNode, k int) *ListNode {
 		prev = slow
 		slow = slow.Next
 		fast = fast.Next
-	} 
+	}
 
 	if prev != nil {
 		prev.Next = slow.Next
