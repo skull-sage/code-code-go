@@ -56,16 +56,6 @@ func reverseKGroup(head *ListNode, k int) *ListNode {
 
 }
 
-func CreateLL(arr []int) *ListNode {
-	head := &ListNode{Val: arr[0], Next: nil}
-	curr := head
-	for idx := 1; idx < len(arr); idx++ {
-		curr.Next = &ListNode{Val: arr[idx], Next: nil}
-		curr = curr.Next
-	}
-	return head
-}
-
 func TestLLRevers(t *testing.T) {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8}
 	ll := CreateLL(arr)
