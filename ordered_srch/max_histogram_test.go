@@ -2,13 +2,27 @@ package ordered_srch
 
 import (
 	"fmt"
-	"sort"
 	"testing"
 )
 
 type element struct {
-	val int
-	idx int
+	val        int
+	expandLeft int
+}
+
+type Stack[T any] struct {
+	items []T
+}
+
+func NewStack() {
+	
+}
+func (s *Stack[T]) push(elm T) {
+	s.items = append(items, elm)
+}
+
+func (s *Stack[T]) pop(elm T) {
+
 }
 
 func toElementArr(arr []int) []element {
@@ -24,23 +38,10 @@ func toElementArr(arr []int) []element {
 
 func maxHistogram(arr []int) int {
 	maxArea := 0
-	elmArr := toElementArr(arr)
+	//elmArr := toElementArr(arr)
 
-	// sort.Slice works in-place
-	sort.Slice(elmArr, func(i, j int) bool {
-		if elmArr[i].val == elmArr[j].val {
-			return elmArr[i].idx > elmArr[j].idx
-		}
-		return elmArr[i].val > elmArr[j].val
+	for i := 0; i < len(arr); i++ {
 
-	})
-
-	fmt.Println(elmArr)
-
-	phi := make([]int, len(elmArr), len(elmArr))
-
-	for i := 0; i < len(elmArr); i++ {
-		val := elmArr[i]
 	}
 
 	// we start with currMax,
