@@ -1,6 +1,7 @@
 package graph_algo
 
 import (
+	graph "algo/main/graph"
 	"fmt"
 	"testing"
 )
@@ -12,22 +13,19 @@ const (
 )
 
 // T is the generic type of id::identity for graph nodes
+
+// NOTE: GO is pass by value-copy, you should always use pointer
 type Node[T comparable] struct {
 	Val    T
 	AdjSet map[T]bool
 }
 
-// NOTE: GO is pass by value-copy, you should always use pointer
-func (self *Node[T]) appendAdj(adj *Node[T]) {
-	self.AdjSet[adj.Val] = true
-}
-
 type Graph[T comparable] struct {
-	NodeMap    map[T]*Node[T]
+	NodeMap    map[T]*graph.Node[T]
 	visitState map[T]int
 }
 
-func (self *Graph[T]) mapNode(val T) *Node[T] {
+func (self *Graph[T]) mapNode(val T) *graph.Node[T] {
 	node, ok := self.NodeMap[val]
 	if !ok {
 		node = &Node[T]{Val: val, AdjSet: map[T]bool{}}
@@ -98,10 +96,11 @@ func findMinHeightTrees(n int, edges [][]int) []int {
 	dfs = func(u *Node[int], phiArr []phi) {
 		graph.visitState[u.Val] = DISCOVERED
 
-		for _, v := range u.AdjList {
+		for k, _ := range u.AdjSet {
+			v := graph.NodeMap[k]
 			if graph.visitState[v.Val] == NOT_DISCOVERED {
 				phiArr[v.Val].parent = u
-				phiArr[v.Val].length = phiArr[u.Val].length + 1
+				phiArr[v.Val].length = phiArr[k].length + 1
 				dfs(v, phiArr)
 			}
 		}
@@ -111,7 +110,7 @@ func findMinHeightTrees(n int, edges [][]int) []int {
 	}
 
 	for _, v := range graph.NodeMap {
-		if len(v.AdjList) == 1 {
+		if len(v.AdjSet) == 1 {
 
 			//fmt.Println("# Start DFS with v: ", v.Val)
 			dfs(v, phiArr)
