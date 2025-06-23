@@ -53,12 +53,12 @@ func (self *Graph[K]) String() string {
 	return str
 }
 
-func (self *Graph[K]) mapNode(val any, k K) *Node[K] {
+func (self *Graph[K]) mapNode(val any, key K) *Node[K] {
 
-	node, ok := self.NodeMap[k]
+	node, ok := self.NodeMap[key]
 	if !ok {
-		node = &Node[K]{Val: val, AdjSet: map[K]bool{}}
-		self.NodeMap[k] = node
+		node = &Node[K]{Val: val, AdjSet: map[K]bool{}, Key: key}
+		self.NodeMap[key] = node
 	}
 	return node
 }
