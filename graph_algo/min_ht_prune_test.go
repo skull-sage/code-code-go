@@ -94,7 +94,7 @@ func (self *Graph[K]) removeEdge(uKey, vKey K) {
 	}
 }
 
-func findMinHeightTrees(n int, edges [][]int) []int {
+func findMinHeightPrune(n int, edges [][]int) []int {
 
 	if n == 1 {
 		return []int{0}
