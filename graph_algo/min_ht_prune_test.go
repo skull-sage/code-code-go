@@ -1,7 +1,6 @@
 package graph_algo
 
 import (
-	"container/list"
 	"fmt"
 	"testing"
 )
@@ -94,72 +93,66 @@ func (self *Graph[K]) removeEdge(uKey, vKey K) {
 	}
 }
 
-func findMinHeightPrune(n int, edges [][]int) []int {
-
+func findMhTByPruning(n int, edges [][]int) []int {
 	if n == 1 {
 		return []int{0}
 	}
-
-	graph := NewGraph(false, func(a any) int { return a.(int) })
-
-	for idx := range edges {
-		edge := edges[idx]
+	graph := NewGraph[int](false, func(a any) int { return a.(int) })
+	for _, edge := range edges {
 		graph.addEdge(edge[0], edge[1])
 	}
 
-	deque := list.New()
-	level := 0
-	for k, v := range graph.NodeMap {
-		if v.adjLen() == 1 {
-			deque.PushBack(k)
+	levelMap := make(map[int]int)
+
+	queue := make([]*Node[int], 0)
+	for _, u := range graph.NodeMap {
+		if u.adjLen() == 1 {
+			queue = append(queue, u)
+			levelMap[u.Key] = 1
 		}
 	}
 
-	remaining := n
+	height := 1
+	for idx := 0; idx < len(queue); idx++ {
+		u := queue[idx] // u is a leaf node
+		uLevel := levelMap[u.Key]
 
-	for remaining > 2 {
+		if height < uLevel {
+			height = uLevel
+		}
 
-		qLen := deque.Len()
-		remaining = remaining - qLen
+		for vKey := range u.AdjSet { // this loop only run only once as u is lead node means u.adjLen() == 1
+			v := graph.node(vKey)
+			vLevel, ok := levelMap[vKey]
 
-		ptr := deque.Front()
+			if ok && vLevel == uLevel && v.adjLen() == 1 {
+				// as v is now a leaf node with same level to u, (u, v) is the top
+				// hence our level traversal ends
+				break
+			} else {
 
-		for qLen > 0 {
-			uKey := ptr.Value.(int)
-			u := graph.node(uKey)
-
-			for vKey := range u.AdjSet {
-				adjNode := graph.node(vKey)
-				graph.removeEdge(uKey, vKey)
-				if adjNode.adjLen() == 1 {
-					fmt.Println("Pushing ", vKey)
-					deque.PushBack(vKey)
+				if !ok || vLevel < uLevel+1 {
+					levelMap[vKey] = uLevel + 1
+				}
+				graph.removeEdge(vKey, u.Key)
+				if v.adjLen() == 1 {
+					queue = append(queue, v)
 				}
 			}
 
-			ptrNext := ptr.Next()
-			deque.Remove(ptr)
-			qLen--
-			ptr = ptrNext
-
 		}
 
-		level++
-
-		// fmt.Printf("#level= %d Deque:", level)
-		// for jtr := deque.Front(); jtr != nil; jtr = jtr.Next() {
-		// 	fmt.Printf(" %v", jtr.Value.(int))
-		// }
-		// fmt.Println()
-
+		//fmt.Println("#levelMap", levelMap)
 	}
 
-	if remaining == 2 {
-		return []int{deque.Front().Value.(int), deque.Back().Value.(int)}
-	} else {
-		return []int{deque.Front().Value.(int)}
+	result := make([]int, 0, 0)
+	for key, level := range levelMap {
+		if level == height {
+			result = append(result, key)
+		}
 	}
 
+	return result
 }
 
 func TestMinHT(t *testing.T) {
@@ -169,6 +162,6 @@ func TestMinHT(t *testing.T) {
 	n := 3
 	edges := [][]int{{1, 0}, {1, 2}}
 
-	roots := findMinHeightTrees(n, edges)
+	roots := findMhTByPruning(n, edges)
 	fmt.Println("#roots", roots)
 }
