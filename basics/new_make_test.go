@@ -5,8 +5,16 @@ import (
 	"testing"
 )
 
-func TestStruct(t *testing.T) {
-
+func TestMakeSlicePtr(t *testing.T) {
+	arr := make([]int, 0, 4)
+	fmt.Printf("ptr %p\n", arr)
+	arr = append(arr, 1)
+	arr = append(arr, 2)
+	arr = append(arr, 3)
+	arr = append(arr, 4)
+	fmt.Printf("ptr %p\n", arr)
+	arr = append(arr, 5)
+	fmt.Printf("ptr %p\n", arr)
 }
 
 func TestSlice(t *testing.T) {
@@ -21,4 +29,5 @@ func TestSlice(t *testing.T) {
 	fmt.Println("len", len(s2), cap(s2))
 	s2 = append(s2, 6)
 	fmt.Println("prints all 6", s2)
+
 }
