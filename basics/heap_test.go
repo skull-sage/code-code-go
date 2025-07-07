@@ -33,13 +33,17 @@ func (h *IntHeap) Pop() any {
 }
 
 func TestHeap(t *testing.T) {
-	h := &IntHeap{3, 4, 2, 6}
+	h := &IntHeap{3, 4, 6}
 
 	heap.Init(h)
-	fmt.Println(heap.Pop(h), "#", h)
-	h.Push(3)
-	fmt.Println(h.Pop(), "#", h)
+	//fmt.Println("popped-heap", heap.Pop(h), "#", h)
+	heap.Push(h, 4)
+	heap.Push(h, 2)
+	heap.Push(h, 7)
+	heap.Push(h, 5)
+
+	fmt.Println("popped-h", heap.Pop(h), "#", h)
 	heap.Push(h, 1)
-	fmt.Println(heap.Pop(h), "#", h)
+	fmt.Println("popped-heap", heap.Pop(h), "#", h)
 
 }
