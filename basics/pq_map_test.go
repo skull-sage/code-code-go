@@ -14,24 +14,28 @@ type Idxkey interface{ int | int64 | string }
 type WeightKey interface{ int | int64 | float64 }
 
 // need to transform into interface
-type IdxKeyExtractor[K Idxkey] func(v any) K
-type WeightKeyExtractor[W WeightKey] func(v any) W
+type IdxKeyExtractor[T any, K Idxkey] func(t T) K
+type WeightKeyExtractor[T any, W WeightKey] func(t T) W
 
-type PQueueMap[K Idxkey, W WeightKey, V any] struct {
-	dataHeap  *DataHeap[K]
-	dataMap   map[K]V
-	keyExt    IdxKeyExtractor[K]
-	weightExt WeightKeyExtractor[W]
+type PQueueMap[T any, K Idxkey, W WeightKey] struct {
+	dataHeap  *DataHeap[T]
+	dataMap   map[K]int
+	keyExt    IdxKeyExtractor[T, K]
+	weightExt WeightKeyExtractor[T, W]
 }
 
-func NewMinPQ[K Idxkey, W WeightKey, V *any](keyExt IdxKeyExtractor[K], weightExt WeightKeyExtractor[W]) *PQueueMap[K, V] {
+func NewMinPQ[T any, K Idxkey, W WeightKey](keyExt IdxKeyExtractor[T, K], weightExt WeightKeyExtractor[T, W]) *PQueueMap[T, K, W] {
 
-	aMap := make(map[K]V, 4)
+	aMap := make(map[K]int, 4)
 	fmt.Printf("created map address: %p\n", aMap)
-	return &PQueueMap[K, W, V]{
-		dataHeap: &DataHeap[V]{
-			arr:      []V{},
-			lessComp: func(a, b V) bool { return a < b },
+	return &PQueueMap[T, K, W]{
+		dataHeap: &DataHeap[T]{
+			arr: []T{},
+			lessComp: func(a, b T) bool {
+				aWeight := weightExt(a)
+				bWeight := weightExt(b)
+				return aWeight < bWeight
+			},
 		},
 		dataMap: aMap,
 		keyExt:  keyExt,
@@ -40,10 +44,14 @@ func NewMinPQ[K Idxkey, W WeightKey, V *any](keyExt IdxKeyExtractor[K], weightEx
 
 func TestPQMap(t *testing.T) {
 	type vertx struct {
-		key  int
-		rank int
+		id     int
+		weight int
 	}
-	keyExt := func(v vertx) int { return v.key }
-	pq := NewMinPQ(keyExt, lessComp)
+	//var keyExt IdxKeyExtractor[vertx, int]
+	keyExt := func(v vertx) int { return v.id }
+	wExt := func(v vertx) int { return v.weight }
+	pq := NewMinPQ(keyExt, wExt)
+
+	fmt.Printf("returned map ref: %p\n", pq.dataMap)
 
 }
