@@ -7,7 +7,6 @@ import (
 )
 
 type LessComparator[V any] func(aVal, bVal V) bool
-
 type DataHeap[V any] struct {
 	arr      []V
 	lessComp LessComparator[V]
@@ -36,7 +35,7 @@ func (d *DataHeap[V]) Top() V {
 	return d.arr[0]
 }
 
-func NewMinHeap[V any]() *DataHeap[V] {
+func NewMinHeap[V Idxkey]() *DataHeap[V] {
 	return &DataHeap[V]{
 		arr: []V{},
 		lessComp: func(aVal, bVal V) bool {
@@ -45,7 +44,10 @@ func NewMinHeap[V any]() *DataHeap[V] {
 	}
 }
 
-func TestDataHeap(t *testing.T) {
+func TestLinearHeap(t *testing.T) {
+	
+}
+func TestStructHeap(t *testing.T) {
 	type vertx struct {
 		rank int
 		val  string

@@ -10,29 +10,31 @@ import (
 * and in practice PQ is used for struct type hence the map implementation
  */
 
- 
+type Idxkey interface{ int | int64 | string }
+type WeightKey interface{ int | int64 | float64 }
 
- type KeyExtractor[K int | int64 | string, V any] func(v V) K
+// need to transform into interface
+type IdxKeyExtractor[K Idxkey] func(v any) K
+type WeightKeyExtractor[W WeightKey] func(v any) W
 
-type PQueueMap[K int | int64 | string, V any] struct {
-	dataHeap *DataHeap[K]
-	dataMap  map[K]V
+type PQueueMap[K Idxkey, W WeightKey, V any] struct {
+	dataHeap  *DataHeap[K]
+	dataMap   map[K]V
+	keyExt    IdxKeyExtractor[K]
+	weightExt WeightKeyExtractor[W]
 }
 
-func NewMinPQ[K int | int64 | string, V any](keyExt KeyExtractor[K, V]) *PQueueMap[K, V] {
+func NewMinPQ[K Idxkey, W WeightKey, V *any](keyExt IdxKeyExtractor[K], weightExt WeightKeyExtractor[W]) *PQueueMap[K, V] {
 
 	aMap := make(map[K]V, 4)
 	fmt.Printf("created map address: %p\n", aMap)
-	return &PQueueMap[K, V]{
-		dataHeap: &DataHeap[K]{
-			arr: []K{},
-			lessComp: func(a, b V) bool {
-				aKey := keyExt(a)
-				bKey := keyExt(b)
-				return aKey < bKey
-			},
+	return &PQueueMap[K, W, V]{
+		dataHeap: &DataHeap[V]{
+			arr:      []V{},
+			lessComp: func(a, b V) bool { return a < b },
 		},
 		dataMap: aMap,
+		keyExt:  keyExt,
 	}
 }
 
@@ -41,7 +43,6 @@ func TestPQMap(t *testing.T) {
 		key  int
 		rank int
 	}
-	lessComp := func(a, b int) bool { return rank < b.rank }
 	keyExt := func(v vertx) int { return v.key }
 	pq := NewMinPQ(keyExt, lessComp)
 
