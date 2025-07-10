@@ -16,8 +16,8 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 
 	type edge struct {
 		id     int
-		u      *vertex
-		v      *vertex
+		u      int
+		v      int
 		weight int
 	}
 
@@ -50,19 +50,12 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 		link(px, py)
 	}
 
-	vertexList := make([]*vertex, n, n)
-	for idx := 0; idx < n; idx++ {
-		v := &vertex{id: idx, rank: 0, p: nil}
-		v.p = v
-		vertexList[idx] = v
-	}
-
 	edgeList := make([]*edge, len(edges), len(edges))
 	for idx := 0; idx < len(edges); idx++ {
 		edgeList[idx] = &edge{
 			id:     idx,
-			u:      vertexList[edges[idx][0]],
-			v:      vertexList[edges[idx][1]],
+			u:      edges[idx][0],
+			v:      edges[idx][1],
 			weight: edges[idx][2],
 		}
 	}
@@ -70,36 +63,57 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	sort.Slice(edgeList, func(idx, jdx int) bool {
 		return edgeList[idx].weight < edgeList[jdx].weight
 	})
+	vertexList := make([]*vertex, n, n)
+
+	pathMap := make(map[int]bool)
 
 	kruskal := func(edgeList []*edge, ignoreEdge *edge) int {
 
+		// MAKE_SET of disjoint set
+		for idx := 0; idx < n; idx++ {
+			v := &vertex{id: idx, rank: 0, p: nil}
+			v.p = v
+			vertexList[idx] = v
+		}
 		totalWeight := 0
 		for _, edge := range edgeList {
 			if edge == ignoreEdge {
 				continue
 			}
-			if isDisjoint(edge.u, edge.v) {
+			uVertex := vertexList[edge.u]
+			vVertex := vertexList[edge.v]
+
+			if isDisjoint(uVertex, vVertex) {
 				totalWeight += edge.weight
-				union(edge.u, edge.v)
+				union(uVertex, vVertex)
+				pathMap[edge.id] = true
 			}
+
 		}
 		return totalWeight
 	}
 
 	minCost := kruskal(edgeList, nil)
-	fmt.Printf("# minCost: %d\n", minCost)
 
 	criticalList := make([]int, 0, 0)
 	pseudoCriticalList := make([]int, 0, 0)
 
+	var cost int
 	for _, edge := range edgeList {
-		cost := kruskal(edgeList, edge)
-		fmt.Printf("# ignoring edge: %d cost=%d\n", edge.id, cost)
-		if isDisjoint(edge.u, edge.v) || cost > minCost {
+
+		if pathMap[edge.id] == false {
+			continue
+		}
+		cost = kruskal(edgeList, edge)
+		uVert := vertexList[edge.u]
+
+		vVert := vertexList[edge.v]
+		if isDisjoint(uVert, vVert) || cost > minCost {
 			criticalList = append(criticalList, edge.id)
 		} else if cost == minCost {
 			pseudoCriticalList = append(pseudoCriticalList, edge.id)
 		}
+
 	}
 
 	return [][]int{criticalList, pseudoCriticalList}
