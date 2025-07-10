@@ -4,45 +4,46 @@ import (
 	"sort"
 )
 
-type vertex struct {
-	x    int
-	y    int
-	rank int
-	p    *vertex
-}
+func minCostConnectPoints(points [][]int) int {
 
-func link(x, y *vertex) {
-	if x.rank > y.rank {
-		y.p = x
-	} else {
-		x.p = y
-		if x.rank == y.rank {
-			y.rank = y.rank + 1
+	type vertex struct {
+		x    int
+		y    int
+		rank int
+		p    *vertex
+	}
+
+	link := func(x, y *vertex) {
+		if x.rank > y.rank {
+			y.p = x
+		} else {
+			x.p = y
+			if x.rank == y.rank {
+				y.rank = y.rank + 1
+			}
 		}
 	}
-}
 
-func findSet(v *vertex) *vertex {
-	if v != v.p {
-		v.p = findSet(v.p)
+	var findSet func(v *vertex) *vertex
+	findSet = func(v *vertex) *vertex {
+		if v != v.p {
+			v.p = findSet(v.p)
+		}
+		return v.p
 	}
-	return v.p
-}
 
-func isDisjoint(u, v *vertex) bool {
-	return findSet(u) != findSet(v)
-}
+	isDisjoint := func(u, v *vertex) bool {
+		return findSet(u) != findSet(v)
+	}
 
-func union(x, y *vertex) {
-	px := findSet(x)
-	py := findSet(y)
-	link(px, py)
-}
+	union := func(x, y *vertex) {
+		px := findSet(x)
+		py := findSet(y)
+		link(px, py)
+	}
 
-func minCostConnectPoints(points [][]int) int {
 	n := len(points)
 	vertexList := make([]*vertex, n, n)
-
 	type edge struct {
 		u      *vertex
 		v      *vertex
