@@ -2,7 +2,6 @@ package graph_algo
 
 import (
 	"fmt"
-	"slices"
 	"sort"
 	"testing"
 )
@@ -66,7 +65,7 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	})
 	vertexList := make([]*Vertex, n, n)
 
-	kruskal := func(edgeList []*Edge, ignoreEdge *Edge) (int, int) {
+	kruskal := func(edgeList []*Edge, keepEdge *Edge, ignoreEdge *Edge) int {
 
 		// MAKE_SET of disjoint set
 		for idx := 0; idx < n; idx++ {
@@ -75,7 +74,12 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 			vertexList[idx] = v
 		}
 		totalWeight := 0
-		maxAccepted := 0
+
+		if keepEdge != nil {
+			totalWeight += keepEdge.weight
+			union(vertexList[keepEdge.u], vertexList[keepEdge.v])
+
+		}
 
 		for _, edge := range edgeList {
 			if edge == ignoreEdge {
@@ -87,16 +91,14 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 			if isDisjoint(uVertex, vVertex) {
 				totalWeight += edge.weight
 				union(uVertex, vVertex)
-				if maxAccepted < edge.weight {
-					maxAccepted = edge.weight
-				}
+
 			}
 
 		}
-		return totalWeight, maxAccepted
+		return totalWeight
 	}
 
-	minCost, maxAccepted := kruskal(edgeList, nil)
+	minCost := kruskal(edgeList, nil, nil)
 
 	criticalList := make([]int, 0, 0)
 	pseudoCriticalList := make([]int, 0, 0)
@@ -104,24 +106,19 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	var cost int
 	for _, edge := range edgeList {
 
-		//fmt.Println("# ignoring edge: ", edge, "max-accepted", maxAccepted)
-		if edge.weight > maxAccepted {
-			continue
-		}
-		cost, _ = kruskal(edgeList, edge)
+		cost = kruskal(edgeList, nil, edge)
 		uVert := vertexList[edge.u]
-
 		vVert := vertexList[edge.v]
 		if isDisjoint(uVert, vVert) || cost > minCost {
 			criticalList = append(criticalList, edge.id)
-		} else if cost == minCost {
-			pseudoCriticalList = append(pseudoCriticalList, edge.id)
+		} else {
+			cost = kruskal(edgeList, edge, nil)
+			if cost == minCost {
+				pseudoCriticalList = append(pseudoCriticalList, edge.id)
+			}
 		}
 
 	}
-
-	slices.Sort(criticalList)
-	slices.Sort(pseudoCriticalList)
 
 	return [][]int{criticalList, pseudoCriticalList}
 }
@@ -138,12 +135,12 @@ func TestCritical(t *testing.T) {
 		{1, 4, 6},
 	} */
 
-	n := 3
+	 n := 3
 	edges := [][]int{
 		{0, 1, 1},
 		{0, 2, 2},
 		{1, 2, 3},
-	}
+	} 
 
 	result := findCriticalAndPseudoCriticalEdges(n, edges)
 	fmt.Println(result)
