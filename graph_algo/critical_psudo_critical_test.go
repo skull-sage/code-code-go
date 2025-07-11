@@ -8,20 +8,20 @@ import (
 
 func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 
-	type vertex struct {
+	type Vertex struct {
 		id   int
 		rank int
-		p    *vertex
+		p    *Vertex
 	}
 
-	type edge struct {
+	type Edge struct {
 		id     int
 		u      int
 		v      int
 		weight int
 	}
 
-	link := func(x, y *vertex) {
+	link := func(x, y *Vertex) {
 		if x.rank > y.rank {
 			y.p = x
 		} else {
@@ -32,27 +32,27 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 		}
 	}
 
-	var findSet func(v *vertex) *vertex
-	findSet = func(v *vertex) *vertex {
+	var findSet func(v *Vertex) *Vertex
+	findSet = func(v *Vertex) *Vertex {
 		if v != v.p {
 			v.p = findSet(v.p)
 		}
 		return v.p
 	}
 
-	isDisjoint := func(u, v *vertex) bool {
+	isDisjoint := func(u, v *Vertex) bool {
 		return findSet(u) != findSet(v)
 	}
 
-	union := func(x, y *vertex) {
+	union := func(x, y *Vertex) {
 		px := findSet(x)
 		py := findSet(y)
 		link(px, py)
 	}
 
-	edgeList := make([]*edge, len(edges), len(edges))
+	edgeList := make([]*Edge, len(edges), len(edges))
 	for idx := 0; idx < len(edges); idx++ {
-		edgeList[idx] = &edge{
+		edgeList[idx] = &Edge{
 			id:     idx,
 			u:      edges[idx][0],
 			v:      edges[idx][1],
@@ -63,19 +63,19 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	sort.Slice(edgeList, func(idx, jdx int) bool {
 		return edgeList[idx].weight < edgeList[jdx].weight
 	})
-	vertexList := make([]*vertex, n, n)
+	vertexList := make([]*Vertex, n, n)
 
-	pathMap := make(map[int]bool)
-
-	kruskal := func(edgeList []*edge, ignoreEdge *edge) int {
+	kruskal := func(edgeList []*Edge, ignoreEdge *Edge) (int, int) {
 
 		// MAKE_SET of disjoint set
 		for idx := 0; idx < n; idx++ {
-			v := &vertex{id: idx, rank: 0, p: nil}
+			v := &Vertex{id: idx, rank: 0, p: nil}
 			v.p = v
 			vertexList[idx] = v
 		}
 		totalWeight := 0
+		maxAccepted := 0
+
 		for _, edge := range edgeList {
 			if edge == ignoreEdge {
 				continue
@@ -86,14 +86,16 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 			if isDisjoint(uVertex, vVertex) {
 				totalWeight += edge.weight
 				union(uVertex, vVertex)
-				pathMap[edge.id] = true
+				if maxAccepted < edge.weight {
+					maxAccepted = edge.weight
+				}
 			}
 
 		}
-		return totalWeight
+		return totalWeight, maxAccepted
 	}
 
-	minCost := kruskal(edgeList, nil)
+	minCost, maxAccepted := kruskal(edgeList, nil)
 
 	criticalList := make([]int, 0, 0)
 	pseudoCriticalList := make([]int, 0, 0)
@@ -101,10 +103,10 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	var cost int
 	for _, edge := range edgeList {
 
-		if pathMap[edge.id] == false {
+		if edge.weight > maxAccepted {
 			continue
 		}
-		cost = kruskal(edgeList, edge)
+		cost, maxAccepted = kruskal(edgeList, edge)
 		uVert := vertexList[edge.u]
 
 		vVert := vertexList[edge.v]
