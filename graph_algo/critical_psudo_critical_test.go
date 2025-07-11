@@ -2,6 +2,7 @@ package graph_algo
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"testing"
 )
@@ -103,10 +104,11 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 	var cost int
 	for _, edge := range edgeList {
 
+		//fmt.Println("# ignoring edge: ", edge, "max-accepted", maxAccepted)
 		if edge.weight > maxAccepted {
 			continue
 		}
-		cost, maxAccepted = kruskal(edgeList, edge)
+		cost, _ = kruskal(edgeList, edge)
 		uVert := vertexList[edge.u]
 
 		vVert := vertexList[edge.v]
@@ -118,11 +120,14 @@ func findCriticalAndPseudoCriticalEdges(n int, edges [][]int) [][]int {
 
 	}
 
+	slices.Sort(criticalList)
+	slices.Sort(pseudoCriticalList)
+
 	return [][]int{criticalList, pseudoCriticalList}
 }
 
 func TestCritical(t *testing.T) {
-	n := 5
+	/* n := 5
 	edges := [][]int{
 		{0, 1, 1},
 		{1, 2, 1},
@@ -131,6 +136,13 @@ func TestCritical(t *testing.T) {
 		{0, 4, 3},
 		{3, 4, 3},
 		{1, 4, 6},
+	} */
+
+	n := 3
+	edges := [][]int{
+		{0, 1, 1},
+		{0, 2, 2},
+		{1, 2, 3},
 	}
 
 	result := findCriticalAndPseudoCriticalEdges(n, edges)
