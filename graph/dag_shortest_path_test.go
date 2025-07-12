@@ -49,7 +49,7 @@ func (dfs *dfsVisit[T]) run(u NodeIF[T]) {
 	uVisit.state = processed
 	dfs.tropology = append(dfs.tropology, u)
 	fmt.Println("# visit complete: ", u.Id(), "::", uVisit)
-	//fmt.Println("# ", dfs.visitMap)
+	fmt.Println("# ", dfs.visitMap)
 
 }
 
