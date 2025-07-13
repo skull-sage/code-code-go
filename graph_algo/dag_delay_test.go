@@ -129,24 +129,33 @@ func buildGraph(times [][]int, n int) *graph {
 	return &g
 }
 
-func networkDelayTime(times [][]int, n int, k int) int {
+func networkDelayTime_dag(times [][]int, n int, k int) int {
 	g := buildGraph(times, n)
 
 	dfs := NewDFSVisit(g)
 	dfs.run(k)
+
+	if len(dfs.tropology) < len(g.nodeMap) {
+		return -1
+	}
 
 	// initialize
 	sNode := g.nodeMap[k]
 	sNode.d = 0
 	sNode.phi = sNode
 	for _, uNode := range g.nodeMap {
-		uNode.d = math.MaxInt
-		uNode.phi = nil
+		if uNode != sNode {
+			uNode.d = math.MaxInt
+			uNode.phi = nil
+		}
+
 	}
 
-	for idx := len(dfs.tropology) - 1; idx >= 0; idx-- {
+	for idx := 0; idx < len(dfs.tropology); idx++ {
 		u := dfs.tropology[idx]
-		fmt.Println("# ", u)
+		//fmt.Println("# u:", u)
+
+		//fmt.Println("# ", u)
 		for _, uvEdge := range u.adjList {
 			v := g.nodeMap[uvEdge.vId]
 			weight := uvEdge.weight
@@ -155,14 +164,15 @@ func networkDelayTime(times [][]int, n int, k int) int {
 				v.d = u.d + weight
 				v.phi = u
 			}
-			fmt.Println(u.id, "=>", v.id, "distance:", v.d)
+
 		}
 
 	}
 
 	max := 0
 	for _, u := range dfs.tropology {
-		fmt.Println(u.id, "=>", u.d)
+		//fmt.Println("#u:", u, u.phi)
+
 		if u.phi == nil {
 			return -1
 		} else if u.d > max {
@@ -174,11 +184,11 @@ func networkDelayTime(times [][]int, n int, k int) int {
 }
 
 func TestNetworkDelayTime(t *testing.T) {
-	times := [][]int{{2, 1, 1}, {2, 3, 1}, {3, 4, 1}}
-	n := 4
+	times := [][]int{{1, 2, 1}}
+	n := 2
 	k := 2
-	expected := 2
-	actual := networkDelayTime(times, n, k)
+	expected := -1
+	actual := networkDelayTime_dag(times, n, k)
 	if actual != expected {
 		t.Errorf("expected %d, actual %d", expected, actual)
 	}
