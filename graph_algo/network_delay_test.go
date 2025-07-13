@@ -1,6 +1,8 @@
 package graph_algo
 
 import (
+	"fmt"
+	"math"
 	"testing"
 )
 
@@ -15,9 +17,19 @@ type WEdge struct {
 	vId    int
 }
 
+func (w WEdge) String() string {
+	return fmt.Sprintf("weight: %d, vId: %d", w.weight, w.vId)
+}
+
 type node struct {
 	id      int
+	d       int
+	phi     *node
 	adjList []*WEdge
+}
+
+func (n node) String() string {
+	return fmt.Sprintf("id: %d, d: %d, adj: %v", n.id, n.d, n.adjList)
 }
 
 func (n *node) AddAdj(e *WEdge) {
@@ -62,7 +74,7 @@ type NodeVisit struct {
 }
 
 type dfsVisit struct {
-	g         graph
+	g         *graph
 	visitMap  map[int]*NodeVisit
 	tickCount int
 	tropology []*node
@@ -91,7 +103,8 @@ func (dfs *dfsVisit) run(uId int) {
 
 }
 
-func NewDFSVisit(g graph) dfsVisit {
+func NewDFSVisit(g *graph) *dfsVisit {
+
 	visitMap := make(map[int]*NodeVisit)
 	for id, _ := range g.nodeMap {
 		visitMap[id] = &NodeVisit{
@@ -100,26 +113,64 @@ func NewDFSVisit(g graph) dfsVisit {
 		}
 	}
 
-	dfs := dfsVisit{visitMap: visitMap, tickCount: 0, tropology: make([]*node, 0)}
-
-	for uId, _ := range g.nodeMap {
-		uVisit := visitMap[uId]
-		if uVisit.state == not_discovered {
-			dfs.run(uId)
-		}
-	}
+	dfs := &dfsVisit{g: g, visitMap: visitMap, tickCount: 0, tropology: make([]*node, 0)}
 
 	return dfs
 }
 
-func networkDelayTime(times [][]int, n int, k int) int {
-	graph := NewNetworkGraph()
+func buildGraph(times [][]int, n int) *graph {
+	g := NewNetworkGraph()
 	for idx := 0; idx < n; idx++ {
-		graph.AddNode(&node{id: idx + 1, adjList: make([]*WEdge, 0)})
+		g.AddNode(&node{id: idx + 1, adjList: make([]*WEdge, 0)})
 	}
 	for _, time := range times {
-		graph.AddEdge(time[0], time[1], time[2])
+		g.AddEdge(time[0], time[1], time[2])
 	}
+	return &g
+}
+
+func networkDelayTime(times [][]int, n int, k int) int {
+	g := buildGraph(times, n)
+
+	dfs := NewDFSVisit(g)
+	dfs.run(k)
+
+	// initialize
+	sNode := g.nodeMap[k]
+	sNode.d = 0
+	sNode.phi = sNode
+	for _, uNode := range g.nodeMap {
+		uNode.d = math.MaxInt
+		uNode.phi = nil
+	}
+
+	for idx := len(dfs.tropology) - 1; idx >= 0; idx-- {
+		u := dfs.tropology[idx]
+		fmt.Println("# ", u)
+		for _, uvEdge := range u.adjList {
+			v := g.nodeMap[uvEdge.vId]
+			weight := uvEdge.weight
+
+			if v.d > u.d+weight {
+				v.d = u.d + weight
+				v.phi = u
+			}
+			fmt.Println(u.id, "=>", v.id, "distance:", v.d)
+		}
+
+	}
+
+	max := 0
+	for _, u := range dfs.tropology {
+		fmt.Println(u.id, "=>", u.d)
+		if u.phi == nil {
+			return -1
+		} else if u.d > max {
+			max = u.d
+		}
+	}
+	return max
+
 }
 
 func TestNetworkDelayTime(t *testing.T) {
