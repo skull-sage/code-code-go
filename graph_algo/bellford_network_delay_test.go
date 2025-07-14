@@ -22,30 +22,33 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 		edgeList []*WEdge
 	}
 
-	/* init_source := func(graph *Graph, s *Vertex) {
+	init_source := func(g *Graph, s *Vertex) {
 		s.d = 0
-		for _, v := range graph.vList {
-			if v == s {
-				continue
+		s.phi = nil
+		for idx := 1; idx < len(g.vList); idx++ {
+			v := g.vList[idx]
+			if v != s {
+				v.d = math.MaxInt
+				v.phi = nil
 			}
-			v.d = math.MaxInt
-			v.phihi = nil
+
 		}
-	} */
+	}
 
 	relax := func(e *WEdge) {
-		if e.v.d > e.u.d+e.w {
+		if e.u.d != math.MaxInt && e.v.d > e.u.d+e.w {
 			e.v.d = e.u.d + e.w
 			e.v.phi = e.u
 		}
 	}
 
 	bellman := func(g *Graph, s *Vertex) bool {
-		//init_source(g, s)
+		init_source(g, s)
 
-		for idx := 0; idx < len(g.vList); idx++ {
+		for idx := 0; idx < n; idx++ {
 			for _, edge := range g.edgeList {
 				relax(edge)
+
 			}
 		}
 
@@ -60,7 +63,7 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 	}
 
 	vList := make([]*Vertex, n+1)
-	for idx := 1; idx <= n; idx++ {
+	for idx := 1; idx < len(vList); idx++ {
 		vList[idx] = &Vertex{
 			id: idx,
 			d:  math.MaxInt,
@@ -78,13 +81,15 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 	}
 
 	g := &Graph{vList: vList, edgeList: weList}
+	src := g.vList[k]
 
-	bellman(g, g.vList[k-1])
+	bellman(g, src)
 
 	max := 0
-	for idx := 1; idx <= len(vList); idx++ {
+	for idx := 1; idx < len(vList); idx++ {
 		v := vList[idx]
-		if v.phi == nil {
+
+		if v != src && v.phi == nil {
 			return -1
 		} else if v.d > max {
 			max = v.d
@@ -94,10 +99,10 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 
 }
 func TestBFDelay(t *testing.T) {
-	times := [][]int{{2, 1, 1}, {2, 3, 1}, {3, 4, 1}}
-	n := 4
+	times := [][]int{{1, 2, 1}, {2, 1, 3}}
+	n := 2
 	k := 2
-	expected := -1
+	expected := 3
 	actual := networkDelayTime(times, n, k)
 	if actual != expected {
 		t.Errorf("expected %d, actual %d", expected, actual)
