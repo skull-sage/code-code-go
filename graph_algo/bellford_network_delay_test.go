@@ -7,10 +7,11 @@ import (
 
 func networkDelayTime(edgeList [][]int, n int, k int) int {
 	type Vertex struct {
+		id  int
 		d   int
 		phi *Vertex
 	}
-	type Edge struct {
+	type WEdge struct {
 		u *Vertex
 		v *Vertex
 		w int
@@ -18,7 +19,7 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 
 	type Graph struct {
 		vList    []*Vertex
-		edgeList []*Edge
+		edgeList []*WEdge
 	}
 
 	/* init_source := func(graph *Graph, s *Vertex) {
@@ -32,7 +33,7 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 		}
 	} */
 
-	relax := func(e *Edge) {
+	relax := func(e *WEdge) {
 		if e.v.d > e.u.d+e.w {
 			e.v.d = e.u.d + e.w
 			e.v.phi = e.u
@@ -58,29 +59,31 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 
 	}
 
-	g := &Graph{vList: make([]*Vertex, 0), edgeList: make([]*Edge, 0)}
-
-	for _, edge := range edgeList {
-		u := &Vertex{
-			d: math.MaxInt,
+	vList := make([]*Vertex, n+1)
+	for idx := 1; idx <= n; idx++ {
+		vList[idx] = &Vertex{
+			id: idx,
+			d:  math.MaxInt,
 		}
-		v := &Vertex{
-			d: math.MaxInt,
-		}
-		e := &Edge{
-			u: u,
-			v: v,
-			w: edge[2],
-		}
-		g.edgeList = append(g.edgeList, e)
-		g.vList = append(g.vList, u)
-		g.vList = append(g.vList, v)
 	}
 
-	bellman(g, g.vList[k])
+	weList := make([]*WEdge, len(edgeList))
+	for idx, edge := range edgeList {
+
+		weList[idx] = &WEdge{
+			u: vList[edge[0]],
+			v: vList[edge[1]],
+			w: edge[2],
+		}
+	}
+
+	g := &Graph{vList: vList, edgeList: weList}
+
+	bellman(g, g.vList[k-1])
 
 	max := 0
-	for _, v := range g.vList {
+	for idx := 1; idx <= len(vList); idx++ {
+		v := vList[idx]
 		if v.phi == nil {
 			return -1
 		} else if v.d > max {
@@ -91,8 +94,8 @@ func networkDelayTime(edgeList [][]int, n int, k int) int {
 
 }
 func TestBFDelay(t *testing.T) {
-	times := [][]int{{1, 2, 1}}
-	n := 2
+	times := [][]int{{2, 1, 1}, {2, 3, 1}, {3, 4, 1}}
+	n := 4
 	k := 2
 	expected := -1
 	actual := networkDelayTime(times, n, k)
