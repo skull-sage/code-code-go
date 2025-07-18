@@ -70,9 +70,11 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		phi int
 	}
 	dArr := make([]*Dist, n+1)
+	for idx := range dArr {
+		dArr[idx] = &Dist{d: math.MaxInt, phi: -1}
+	}
 	// dijkstra
 	start := n
-	//end := 1
 	pq := new(PQList)
 	dArr[start] = &Dist{d: 0, phi: start}
 	heap.Push(pq, &qnode{start, 0})
@@ -91,6 +93,7 @@ func countRestrictedPaths(n int, edges [][]int) int {
 			}
 		}
 	}
+
 	edgeMap = make(map[int]*AdjList)
 	for _, e := range edges {
 		u := e[0]
@@ -106,9 +109,7 @@ func countRestrictedPaths(n int, edges [][]int) int {
 
 	var dfsCount func(u int) int
 	dfsCount = func(u int) int {
-		if u == 1 {
-			return 1
-		}
+		// TO BE Implemented
 		return 0
 	}
 
