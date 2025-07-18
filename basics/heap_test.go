@@ -34,7 +34,7 @@ func (h *IntHeap) Pop() any {
 
 func TestHeap(t *testing.T) {
 	h := &IntHeap{3, 4, 6}
-
+	//h := make(IntHeap, 0)
 	heap.Init(h)
 	//fmt.Println("popped-heap", heap.Pop(h), "#", h)
 	heap.Push(h, 4)

@@ -5,6 +5,12 @@ import (
 	"testing"
 )
 
+/*
+1. new(T) creates a ptr *T with zeroed value
+2. new(T); T can be any type: int, string, struct
+3. For map[k]val, channel & slice, make(T) is more suitable
+4. &[]int{} vs make([]int)
+*/
 func TestMakeSlicePtr(t *testing.T) {
 	arr := make([]int, 0, 4)
 	fmt.Printf("ptr %p\n", arr)
@@ -15,6 +21,40 @@ func TestMakeSlicePtr(t *testing.T) {
 	fmt.Printf("ptr %p\n", arr)
 	arr = append(arr, 5)
 	fmt.Printf("ptr %p\n", arr)
+}
+
+func TestMakeWithDefinedType(t *testing.T) {
+	type IntArr []int
+	arr := make(IntArr, 0, 4)
+	arr = append(arr, 1)
+}
+
+func TestMapMutation(t *testing.T) {
+	type Name struct {
+		first  string
+		second string
+	}
+
+	nameMap := make(map[int]Name)
+	nameMap[1] = Name{
+		first:  "first",
+		second: "second",
+	}
+
+	aname := nameMap[1]
+	aname.first = "first changed?"
+	fmt.Println(nameMap[1]) // unchanged, still first
+
+	nameMapPtr := make(map[int]*Name)
+	nameMapPtr[1] = &Name{
+		first:  "first",
+		second: "second",
+	}
+
+	aNamePtr := nameMapPtr[1]
+	aNamePtr.first = "first changed"
+	fmt.Println(nameMapPtr[1]) // first changed
+
 }
 
 func TestSlice(t *testing.T) {
