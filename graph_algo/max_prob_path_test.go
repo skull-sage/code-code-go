@@ -5,38 +5,6 @@ import (
 	"testing"
 )
 
-type qnode struct {
-	u    int
-	rank float64
-}
-
-type PQList []*qnode
-
-func (pq *PQList) Len() int {
-	return len(*pq)
-}
-
-func (pq *PQList) Swap(i, j int) {
-	h := *pq
-	h[i], h[j] = h[j], h[i]
-}
-
-func (pq *PQList) Less(i, j int) bool {
-	h := *pq
-	return h[i].rank > h[j].rank
-}
-
-func (pq *PQList) Push(x any) {
-	*pq = append(*pq, x.(*qnode))
-}
-
-func (pq *PQList) Pop() any {
-	h := *pq
-	x := h[len(h)-1]
-	*pq = h[0 : len(h)-1]
-	return x
-}
-
 func maxProbability(n int, edges [][]int, succProb []float64, start int, end int) float64 {
 
 	type WEdge struct {
