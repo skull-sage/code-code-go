@@ -1,6 +1,9 @@
 package graph_algo
 
-import "container/heap"
+import (
+	"container/heap"
+	"math"
+)
 
 type qnode struct {
 	u    int
@@ -66,7 +69,7 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		d   int
 		phi int
 	}
-	dArr := make([]*Dist, n)
+	dArr := make([]*Dist, n+1)
 	// dijkstra
 	start := n
 	//end := 1
@@ -87,11 +90,35 @@ func countRestrictedPaths(n int, edges [][]int) int {
 				heap.Push(pq, &qnode{edge.v, distV.d})
 			}
 		}
-		//fmt.Println("# u", uNode)
-		//fmt.Println("#heap", *pq)
-		//fmt.Println("#dArr", dArr)
+	}
+	edgeMap = make(map[int]*AdjList)
+	for _, e := range edges {
+		u := e[0]
+		v := e[1]
+		if u < v && dArr[u].d > dArr[v].d {
+			adjU := edgeMap[u]
+			*adjU = append(*adjU, WEdge{u, v, 0}) // we con't care about w
+		} else if dArr[v].d > dArr[u].d {
+			adjV := edgeMap[v]
+			*adjV = append(*adjV, WEdge{v, u, 0})
+		}
 	}
 
-	countArr := make()
 	var dfsCount func(u int) int
+	dfsCount = func(u int) int {
+		if u == 1 {
+			return 1
+		}
+		return 0
+	}
+
+	total := dfsCount(1)
+	_10Pow9 := math.Pow(10, 9)
+	_10Pow9Int := int(_10Pow9)
+	return total % (_10Pow9Int + 7)
+
+	//fmt.Println("# u", uNode)
+	//fmt.Println("#heap", *pq)
+	//fmt.Println("#dArr", dArr)
+
 }

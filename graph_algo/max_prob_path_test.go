@@ -2,6 +2,7 @@ package graph_algo
 
 import (
 	"container/heap"
+	"fmt"
 	"testing"
 )
 
@@ -46,10 +47,11 @@ func maxProbability(n int, edges [][]int, succProb []float64, start int, end int
 		uAdj := edgeMap[uNode.u]
 
 		for _, edge := range *uAdj {
-			if dArr[edge.v] < uNode.rank*edge.w {
+			fmt.Println(edge)
+			/* if dArr[edge.v] < uNode.rank*edge.w {
 				dArr[edge.v] = dArr[edge.u] * edge.w
 				heap.Push(pq, &qnode{edge.v, dArr[edge.v]})
-			}
+			} */
 		}
 
 		//fmt.Println("# u", uNode)
