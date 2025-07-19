@@ -6,8 +6,8 @@ import (
 )
 
 /* type qnode struct {
-	u    int
-	rank int
+	u     int
+	dRank int
 }
 
 type PQList []*qnode
@@ -23,7 +23,7 @@ func (pq *PQList) Swap(i, j int) {
 
 func (pq *PQList) Less(i, j int) bool {
 	h := *pq
-	return h[i].rank > h[j].rank
+	return h[i].dRank > h[j].dRank
 }
 
 func (pq *PQList) Push(x any) {
@@ -86,8 +86,8 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		for _, edge := range *uAdj {
 			distV := dArr[edge.v] // we will use ptr ref distV
 
-			if distV.d > uNode.rank+edge.w {
-				distV.d = uNode.rank + edge.w
+			if distV.d > uNode.dRank+edge.w {
+				distV.d = uNode.dRank + edge.w
 				distV.phi = uNode.u
 				heap.Push(pq, &qnode{edge.v, distV.d})
 			}

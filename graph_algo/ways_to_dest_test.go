@@ -2,12 +2,14 @@ package graph_algo
 
 import (
 	"container/heap"
+	"fmt"
 	"math"
+	"testing"
 )
 
 type qnode struct {
-	u    int
-	rank int
+	u     int
+	dRank int
 }
 
 type PQList []*qnode
@@ -23,7 +25,7 @@ func (pq *PQList) Swap(i, j int) {
 
 func (pq *PQList) Less(i, j int) bool {
 	h := *pq
-	return h[i].rank > h[j].rank
+	return h[i].dRank > h[j].dRank
 }
 
 func (pq *PQList) Push(x any) {
@@ -66,15 +68,15 @@ func countPaths(n int, roads [][]int) int {
 
 	}
 
-	dArr := make([]int, n+1)
+	dArr := make([]int, n)
 	for idx := range dArr {
 		dArr[idx] = math.MaxInt
 	}
 	// dijkstra
-	start := n
+	target := n - 1
 	pq := new(PQList)
-
-	heap.Push(pq, &qnode{start, 0})
+	dArr[target] = 0
+	heap.Push(pq, &qnode{target, 0})
 
 	for len(*pq) > 0 {
 		uNode := heap.Pop(pq).(*qnode)
@@ -83,13 +85,57 @@ func countPaths(n int, roads [][]int) int {
 		for _, edge := range *uAdj {
 
 			if dArr[edge.v] > uNode.dRank+edge.w {
-				distV.d = uNode.rank + edge.w
-				distV.phi = uNode.u
-				heap.Push(pq, &qnode{edge.v, distV.d})
+				dArr[edge.v] = uNode.dRank + edge.w
+				heap.Push(pq, &qnode{edge.v, dArr[edge.v]})
 			}
 		}
+	} // dijkstra ends
+
+	fmt.Println(dArr)
+	countPath := make([]int, n)
+	_10Pow9 := math.Pow(10, 9)
+	_10Pow9Int := int(_10Pow9)
+
+	var dfsCount func(u int) int
+	dfsCount = func(u int) int {
+
+		if u == target {
+			return 1
+		}
+		if countPath[u] > 0 {
+			return countPath[u]
+		}
+
+		adjList := edgeMap[u]
+		countU := 0
+		for _, edge := range *adjList {
+			if dArr[u] == dArr[edge.v]+edge.w {
+				countU += dfsCount(edge.v)
+				countU = countU % (_10Pow9Int + 7)
+			}
+		}
+		countPath[u] = countU
+		return countU
 	}
 
-	dest := n - 1
+	totalCount := dfsCount(0)
+	return totalCount
 
+}
+
+func TestWaySP(t *testing.T) {
+	n := 7
+	roads := [][]int{
+		{0, 6, 7},
+		{0, 1, 2},
+		{1, 2, 3},
+		{1, 3, 3},
+		{6, 3, 3},
+		{3, 5, 1},
+		{6, 5, 1},
+		{2, 5, 1},
+		{0, 4, 5},
+		{4, 6, 2}}
+
+	fmt.Println(countPaths(n, roads))
 }
