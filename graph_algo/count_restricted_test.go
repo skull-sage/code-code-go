@@ -3,9 +3,10 @@ package graph_algo
 import (
 	"container/heap"
 	"math"
+	"testing"
 )
 
-/* type qnode struct {
+type qnode struct {
 	u     int
 	dRank int
 }
@@ -35,7 +36,7 @@ func (pq *PQList) Pop() any {
 	x := h[len(h)-1]
 	*pq = h[0 : len(h)-1]
 	return x
-} */
+}
 
 func countRestrictedPaths(n int, edges [][]int) int {
 	type WEdge struct {
@@ -45,11 +46,11 @@ func countRestrictedPaths(n int, edges [][]int) int {
 	}
 
 	type AdjList []WEdge
-	edgeMap := make(map[int]*AdjList)
+	nodeEdgeList := make([]*AdjList, n+1, n+1)
 
 	for idx := 1; idx <= n; idx++ {
 		adjList := new(AdjList)
-		edgeMap[idx] = adjList
+		nodeEdgeList[idx] = adjList
 	}
 
 	for _, edge := range edges {
@@ -58,68 +59,80 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		v := edge[1]
 		w := edge[2]
 
-		uAdj := edgeMap[u]
-		vAdj := edgeMap[v]
+		uAdj := nodeEdgeList[u]
+		vAdj := nodeEdgeList[v]
 
 		*uAdj = append(*uAdj, WEdge{u, v, w})
 		*vAdj = append(*vAdj, WEdge{v, u, w})
 
 	}
-	type Dist struct {
-		d   int
-		phi int
-	}
-	dArr := make([]*Dist, n+1)
+
+	dArr := make([]int, n+1)
 	for idx := range dArr {
-		dArr[idx] = &Dist{d: math.MaxInt, phi: -1}
+		dArr[idx] = math.MaxInt
 	}
 	// dijkstra
-	start := n
+	target := n
 	pq := new(PQList)
-	dArr[start] = &Dist{d: 0, phi: start}
-	heap.Push(pq, &qnode{start, 0})
+	dArr[target] = 0
+	heap.Push(pq, &qnode{target, 0})
 
 	for len(*pq) > 0 {
 		uNode := heap.Pop(pq).(*qnode)
-		uAdj := edgeMap[uNode.u]
+		uAdj := nodeEdgeList[uNode.u]
 
 		for _, edge := range *uAdj {
-			distV := dArr[edge.v] // we will use ptr ref distV
 
-			if distV.d > uNode.dRank+edge.w {
-				distV.d = uNode.dRank + edge.w
-				distV.phi = uNode.u
-				heap.Push(pq, &qnode{edge.v, distV.d})
+			if dArr[edge.v] > uNode.dRank+edge.w {
+				dArr[edge.v] = uNode.dRank + edge.w
+				heap.Push(pq, &qnode{edge.v, dArr[edge.v]})
 			}
 		}
 	}
 
-	edgeMap = make(map[int]*AdjList)
-	for _, e := range edges {
-		u := e[0]
-		v := e[1]
-		if u < v && dArr[u].d > dArr[v].d {
-			adjU := edgeMap[u]
-			*adjU = append(*adjU, WEdge{u, v, 0}) // we con't care about w
-		} else if dArr[v].d > dArr[u].d {
-			adjV := edgeMap[v]
-			*adjV = append(*adjV, WEdge{v, u, 0})
-		}
-	}
+	countPath := make([]int, n+1)
+	_10Pow9 := math.Pow(10, 9)
+	_10Pow9Int := int(_10Pow9)
 
 	var dfsCount func(u int) int
 	dfsCount = func(u int) int {
-		// TO BE Implemented
-		return 0
+
+		/* if u == target {
+			return 1
+		}
+		if countPath[u] > 0 {
+			return countPath[u]
+		} */
+
+		adjList := nodeEdgeList[u]
+		countU := 0
+		for _, edge := range *adjList {
+			if edge.v == target {
+				countU += 1
+			} else if dArr[u] > dArr[edge.v] {
+				if countPath[edge.v] > 0 {
+					countU += countPath[edge.v]
+				} else {
+					countU += dfsCount(edge.v)
+				}
+				countU = countU % (_10Pow9Int + 7)
+			}
+		}
+		countPath[u] = countU
+		return countU
 	}
 
-	total := dfsCount(1)
-	_10Pow9 := math.Pow(10, 9)
-	_10Pow9Int := int(_10Pow9)
-	return total % (_10Pow9Int + 7)
+	totalCount := dfsCount(1)
+	return totalCount
 
 	//fmt.Println("# u", uNode)
 	//fmt.Println("#heap", *pq)
 	//fmt.Println("#dArr", dArr)
 
+}
+
+func TestRestricted(t *testing.T) {
+
+	// restricted cases are removed for future ref
+	// the solution face constant TLE on Leetcode for no apperant reason
 }

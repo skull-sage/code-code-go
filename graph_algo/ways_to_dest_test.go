@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-type qnode struct {
+/* type qnode struct {
 	u     int
 	dRank int
 }
@@ -37,7 +37,7 @@ func (pq *PQList) Pop() any {
 	x := h[len(h)-1]
 	*pq = h[0 : len(h)-1]
 	return x
-}
+} */
 
 func countPaths(n int, roads [][]int) int {
 	type WEdge struct {
@@ -91,7 +91,7 @@ func countPaths(n int, roads [][]int) int {
 		}
 	} // dijkstra ends
 
-	fmt.Println(dArr)
+	//fmt.Println(dArr)
 	countPath := make([]int, n)
 	_10Pow9 := math.Pow(10, 9)
 	_10Pow9Int := int(_10Pow9)
@@ -115,6 +115,7 @@ func countPaths(n int, roads [][]int) int {
 			}
 		}
 		countPath[u] = countU
+		fmt.Printf("# %p\n", countPath)
 		return countU
 	}
 
