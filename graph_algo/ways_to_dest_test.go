@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-/* type qnode struct {
+type qnode struct {
 	u    int
 	rank int
 }
@@ -35,9 +35,9 @@ func (pq *PQList) Pop() any {
 	x := h[len(h)-1]
 	*pq = h[0 : len(h)-1]
 	return x
-} */
+}
 
-func countRestrictedPaths(n int, edges [][]int) int {
+func countPaths(n int, roads [][]int) int {
 	type WEdge struct {
 		u int
 		v int
@@ -47,12 +47,12 @@ func countRestrictedPaths(n int, edges [][]int) int {
 	type AdjList []WEdge
 	edgeMap := make(map[int]*AdjList)
 
-	for idx := 1; idx <= n; idx++ {
+	for idx := 0; idx < n; idx++ {
 		adjList := new(AdjList)
 		edgeMap[idx] = adjList
 	}
 
-	for _, edge := range edges {
+	for _, edge := range roads {
 
 		u := edge[0]
 		v := edge[1]
@@ -65,18 +65,15 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		*vAdj = append(*vAdj, WEdge{v, u, w})
 
 	}
-	type Dist struct {
-		d   int
-		phi int
-	}
-	dArr := make([]*Dist, n+1)
+
+	dArr := make([]int, n+1)
 	for idx := range dArr {
-		dArr[idx] = &Dist{d: math.MaxInt, phi: -1}
+		dArr[idx] = math.MaxInt
 	}
 	// dijkstra
 	start := n
 	pq := new(PQList)
-	dArr[start] = &Dist{d: 0, phi: start}
+
 	heap.Push(pq, &qnode{start, 0})
 
 	for len(*pq) > 0 {
@@ -84,9 +81,8 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		uAdj := edgeMap[uNode.u]
 
 		for _, edge := range *uAdj {
-			distV := dArr[edge.v] // we will use ptr ref distV
 
-			if distV.d > uNode.rank+edge.w {
+			if dArr[edge.v] > uNode.dRank+edge.w {
 				distV.d = uNode.rank + edge.w
 				distV.phi = uNode.u
 				heap.Push(pq, &qnode{edge.v, distV.d})
@@ -94,32 +90,6 @@ func countRestrictedPaths(n int, edges [][]int) int {
 		}
 	}
 
-	edgeMap = make(map[int]*AdjList)
-	for _, e := range edges {
-		u := e[0]
-		v := e[1]
-		if u < v && dArr[u].d > dArr[v].d {
-			adjU := edgeMap[u]
-			*adjU = append(*adjU, WEdge{u, v, 0}) // we con't care about w
-		} else if dArr[v].d > dArr[u].d {
-			adjV := edgeMap[v]
-			*adjV = append(*adjV, WEdge{v, u, 0})
-		}
-	}
-
-	var dfsCount func(u int) int
-	dfsCount = func(u int) int {
-		// TO BE Implemented
-		return 0
-	}
-
-	total := dfsCount(1)
-	_10Pow9 := math.Pow(10, 9)
-	_10Pow9Int := int(_10Pow9)
-	return total % (_10Pow9Int + 7)
-
-	//fmt.Println("# u", uNode)
-	//fmt.Println("#heap", *pq)
-	//fmt.Println("#dArr", dArr)
+	dest := n - 1
 
 }
