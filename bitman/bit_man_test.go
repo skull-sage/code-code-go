@@ -5,6 +5,28 @@ import (
 	"testing"
 )
 
+func TestBitOps(t *testing.T) {
+	// to know k-th bit use AND
+	x := 36
+	fmt.Printf("x=%d in binary => %b\n", x, x)
+	k := 3 // if bit index are counting from 1
+	resultWithAnd := x & (1 << (k - 1))
+	fmt.Printf("%d-th bit is %b\n", k, resultWithAnd)
+
+	// To Set k-th bit use OR
+	resultWithOR := x | (1 << (k - 1))
+	fmt.Printf("After bit-set with OR, is %b\n", resultWithOR)
+
+	// To toggle k-th bit use XOR
+	resultWithXOR := x ^ (1 << (k - 1))
+	fmt.Printf("After toggling: %b\n", resultWithXOR)
+
+	// to toggle all bit use uniary XOR (^)
+	resultWithUnaryXOR := ^x
+	fmt.Printf("After unary XOR: %b\n", resultWithUnaryXOR)
+
+}
+
 func findingLowestSetBit() {
 	x := 4
 
@@ -28,8 +50,8 @@ func countSetBitExample() {
 	fmt.Println("bit count\n", bitCount)
 }
 
-func TestToggleBit(t *testing.T) {
-	findingLowestSetBit() // or right most set bit
+func TestBitMan(t *testing.T) {
+	//findingLowestSetBit() // or right most set bit
 	//countSetBitExample()
 	//ClearLowestSetBitExample()
 	//findUniqueElmInArr() // where all other element appear twice
