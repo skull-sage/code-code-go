@@ -7,30 +7,38 @@ import (
 
 func merge(llA *ListNode, llB *ListNode) *ListNode {
 	headA := &ListNode{Val: -1, Next: nil}
-	headA.Next = llA
-	prevA := headA
+
+	start := headA
 
 	for llA != nil && llB != nil {
 
-		//fmt.Println("prevA->", prevA.Val, "LLA->", llA.Val, "LLB->", llB.Val)
+		var copy *ListNode
 
 		if llA.Val <= llB.Val { // move llA pointers: llA & prevA
-			prevA = llA    // llA is prevA.Next
+			copy = llA     // llA is prevA.Next
 			llA = llA.Next // move llA to its next
 		} else {
-			copyNextB := llB.Next
-			prevA.Next = llB
-			llB.Next = llA
-			prevA = prevA.Next
-			llB = copyNextB
+			copy = llB
+			llB = llB.Next
 		}
 
+		// add copy to tail of newHead
+		start.Next = copy  // head.Next ~> copy
+		start = start.Next // head.Next ~> start.Next
 	}
 
+	// fmt.Println(start, llB)
+
 	for llB != nil {
-		prevA.Next = llB
-		prevA = prevA.Next
+		start.Next = llB
+		start = start.Next
 		llB = llB.Next
+	}
+
+	for llA != nil {
+		start.Next = llA
+		start = start.Next
+		llA = llA.Next
 	}
 
 	return headA.Next
