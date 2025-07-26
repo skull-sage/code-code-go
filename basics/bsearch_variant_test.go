@@ -32,7 +32,7 @@ func binaryTarget(nums []int, target int) {
 			low = mid + 1
 		} else if target == midVal {
 			targetIdx = mid
-			//low = mid + 1 for smallest element larger than target
+			//low = mid + 1 //for smallest element larger than target
 			high = mid - 1 // for greatest element less than target
 
 		}
