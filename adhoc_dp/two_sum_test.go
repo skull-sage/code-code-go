@@ -2,7 +2,7 @@ package adhoc_dp
 
 import "testing"
 
-func twoSum(nums []int, target int) []int {
+func twoSumUnsorted(nums []int, target int) []int {
 	idxMap := make(map[int]int)
 
 	for idx, num := range nums {
