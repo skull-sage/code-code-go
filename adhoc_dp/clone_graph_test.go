@@ -1,5 +1,9 @@
 package adhoc_dp
 
+import (
+	"testing"
+)
+
 type Node struct {
 	Val       int
 	Neighbors []*Node
@@ -16,14 +20,12 @@ func cloneNode(node *Node) *Node {
 	newNode := createClone(node)
 	visitMap[node.Val] = newNode
 
-	for _, u := range node.Neighbors {
-		_, ok := visitMap[u.Val]
+	for idx, u := range node.Neighbors {
+		cloneU, ok := visitMap[u.Val]
 		if !ok {
-			cloneU := cloneNode(u)
-			newNode.Neighbors = append(newNode.Neighbors, cloneU)
-			cloneU.Neighbors = append(cloneU.Neighbors, newNode)
+			cloneU = cloneNode(u)
 		}
-
+		newNode.Neighbors[idx] = cloneU
 	}
 
 	return newNode
@@ -31,7 +33,16 @@ func cloneNode(node *Node) *Node {
 
 func cloneGraph(node *Node) *Node {
 
+	if node == nil {
+		return nil
+	}
 	visitMap = make(map[int]*Node)
-	return cloneNode(node)
+	newClone := cloneNode(node)
+
+	return newClone
+
+}
+
+func TestCloneGraph(t *testing.T) {
 
 }
