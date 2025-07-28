@@ -7,7 +7,7 @@ import (
 func reachableNodes(edges [][]int, maxMoves int, n int) int {
 	type Edge struct {
 		v       int
-		wCount int
+		wCount  int
 		adjList []*Edge
 	}
 
@@ -22,26 +22,28 @@ func reachableNodes(edges [][]int, maxMoves int, n int) int {
 	}
 
 	for _, e := range edges {
-			u := edgeMap[e[0]]
-			u.adjList = append(u.adjList, &Edge{v: e[1], wCount: e[2]+1})
+		u := edgeMap[e[0]]
+		u.adjList = append(u.adjList, &Edge{v: e[1], wCount: e[2] + 1})
 	}
 
 	queue := make([]*Visit, 0)
 	queue = append(queue, &Visit{u: 0, count: 1})
 
-	totalCount :=0 
- 	for idx:=0; idx< n; idx++ {
+	totalCount := 0
+	for idx := 0; idx < n; idx++ {
 		head := queue[idx]
-		 
+
 		adjList := edgeMap[head.u].adjList
 		for _, edge := range adjList {
-			 if head.count + edge.wCount <= maxMoves {
+			if head.count+edge.wCount <= maxMoves {
 				totalCount += edge.wCount
 				queue = append(queue, &Visit{u: edge.v, count: head.count + edge.wCount})
-			 }
+			}
 		}
-}
+	}
 
+	return totalCount
+}
 func TestSubdividedReachable(t *testing.T) {
 
 }
