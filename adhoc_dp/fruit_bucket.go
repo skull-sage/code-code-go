@@ -4,47 +4,49 @@ import "fmt"
 
 func totalFruit(fruits []int) int {
 
-	n := len(fruits)
-
-	if n == 1 {
-		return 1
-	}
-
-	if n == 2 {
-		return 2
-	}
-
 	type Bucket struct {
 		f     int
 		count int
 	}
 
-	bucketA := &Bucket{f: -1, count: 0}
-	bucketB := &Bucket{f: -1, count: 0}
+	bucketList := make([]*Bucket, 0)
+	bucket := &Bucket{f: fruits[0], count: 1}
 
-	max := 0
-
-	//fmt.Println(bucketA, *bucketA)
-
-	for idx := 0; idx < n; idx++ {
-
-		f := fruits[idx]
-
-		if f == bucketA.f {
-			bucketA, bucketB = bucketB, bucketA
-			bucketB.count++
-		} else if f == bucketB.f {
-			bucketB.count++
+	for idx := 1; idx < len(fruits); idx++ {
+		if bucket.f == fruits[idx] {
+			bucket.count++
 		} else {
-			bucketA, bucketB = bucketB, bucketA
+			bucketList = append(bucketList, bucket)
+			bucket = &Bucket{f: fruits[idx], count: 1}
+		}
+	}
+	n := len(bucketList)
 
-			bucketB.f = f
-			bucketB.count = 1
+	if n == 1 {
+		return bucketList[0].count
+	}
+
+	bucketA := bucketList[0]
+	bucketB := bucketList[1]
+	totalCountable := bucketA.count + bucketB.count
+	max := totalCountable
+
+	for idx := 2; idx < len(bucketList); idx++ {
+
+		b := bucketList[idx]
+
+		if b.f == bucketA.f || b.f == bucketB.f {
+			totalCountable += b.count
+		} else {
+			bucketA = bucketList[idx-1]
+			bucketB = bucketList[idx]
+			totalCountable = bucketA.count + bucketB.count
 		}
 
-		fmt.Println(bucketA, bucketB)
-		if max < bucketA.count+bucketB.count {
-			max = bucketA.count + bucketB.count
+		fmt.Println("A:", bucketA, "B:", bucketB, "it:", b, "=>", totalCountable)
+
+		if max < totalCountable {
+			max = totalCountable
 		}
 	}
 
