@@ -1,4 +1,4 @@
-package adhoc_dp
+package backtrack
 
 import (
 	"sort"

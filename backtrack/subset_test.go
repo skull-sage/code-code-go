@@ -1,6 +1,7 @@
-package adhoc_dp
+package backtrack
 
 import (
+	"fmt"
 	"sort"
 	"testing"
 )
@@ -15,15 +16,11 @@ func recurSubset(idx int, curr []int, nums []int, result *ResultArr) {
 
 	l := len(curr)
 
-	for i := idx + 1; i < len(nums); i++ {
-
-		if l > 0 && nums[i] <= curr[l-1] {
-			continue
-		}
+	for i := idx; i < len(nums); i++ {
 
 		curr = append(curr, nums[i]) // {1} / {2} / {3} / {4}
 		//fmt.Println("idx:", idx, "i:", i, curr)
-		recurSubset(idx+1, curr, nums, result)
+		recurSubset(i+1, curr, nums, result)
 		curr = curr[:l]
 	}
 
@@ -33,7 +30,7 @@ func subsets(nums []int) [][]int {
 	sort.Ints(nums)
 	ans := make(ResultArr, 0)
 	curr := make([]int, 0)
-	recurSubset(-1, curr, nums, &ans)
+	recurSubset(0, curr, nums, &ans)
 	return ans
 }
 
@@ -41,5 +38,7 @@ func TestSubset(t *testing.T) {
 
 	nums := []int{1, 2, 3, 4}
 	ans := subsets(nums)
-	t.Log(ans)
+	for _, a := range ans {
+		fmt.Println(a)
+	}
 }
