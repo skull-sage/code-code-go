@@ -7,7 +7,7 @@ type ListNode struct {
 	Next *ListNode
 }
 
-func _logLink(ll *ListNode) {
+func logLL(ll *ListNode) {
 	for ptr := ll; ptr != nil; ptr = ptr.Next {
 		fmt.Print(ptr.Val, "->")
 	}

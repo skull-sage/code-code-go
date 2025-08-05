@@ -30,5 +30,5 @@ func reverseList(head *ListNode) *ListNode {
 func TestReverse(t *testing.T) {
 	ll := CreateLL([]int{1, 2, 3, 4, 5})
 	rl := reverseList(ll)
-	_logLink(rl)
+	logLL(rl)
 }

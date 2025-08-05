@@ -28,7 +28,7 @@ func TestFastSlowPtr(t *testing.T) {
 	for idx := 3; idx < 8; idx++ {
 		sampleArr = append(sampleArr, idx)
 		ll := CreateLL(sampleArr)
-		_logLink(ll)
+		logLL(ll)
 		fastSlowPtr(ll)
 	}
 

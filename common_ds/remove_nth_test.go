@@ -38,5 +38,5 @@ func TestRemoveNthFromEnd(t *testing.T) {
 	ll := CreateLL(arr)
 	ll = removeNthFromEnd(ll, 1)
 
-	_logLink(ll)
+	logLL(ll)
 }

@@ -34,5 +34,5 @@ func TestSwapNodes(t *testing.T) {
 	arr := []int{1, 2, 3, 4, 5, 6, 7, 8}
 	ll := CreateLL(arr)
 	swapNodes(ll, 2)
-	_logLink(ll)
+	logLL(ll)
 }

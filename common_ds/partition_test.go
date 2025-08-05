@@ -36,5 +36,5 @@ func TestPartition(t *testing.T) {
 	ll := CreateLL([]int{2, 1})
 	ll = partition(ll, 2)
 
-	_logLink(ll)
+	logLL(ll)
 }

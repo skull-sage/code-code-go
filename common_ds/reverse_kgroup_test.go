@@ -64,5 +64,5 @@ func TestLLRevers(t *testing.T) {
 
 	//ll = reverseKGroup(ll, 3)
 
-	_logLink(ll)
+	logLL(ll)
 }

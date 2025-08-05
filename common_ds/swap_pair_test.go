@@ -21,5 +21,5 @@ func swapPairs(ll *ListNode) *ListNode {
 func TestSwapPair(t *testing.T) {
 	ll := CreateLL([]int{1, 2, 3, 4})
 	ll = swapPairs(ll)
-	_logLink(ll)
+	logLL(ll)
 }
