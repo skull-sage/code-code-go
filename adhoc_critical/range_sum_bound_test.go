@@ -1,74 +1,88 @@
 package adhoc_critical
 
-func sortAndCount(pfSum *[]int, low, high int) int {
+type Input struct {
+	pfSum []int
+	lower int
+	upper int
+	count int
+}
+
+func (this *Input) sortAndCount(low, high int) {
 
 	if low >= high {
-		return 0
+		return
 	}
 
-	mid := (high + low)/2 // l = 2, h = 7, m = 4 
+	mid := (high + low) / 2 // l = 2, h = 7, m = 4
 
-	sortAndCount(pfSum, low, mid)
-	sortAndCount(pfSum, mid, high)
+	this.sortAndCount(low, mid)
+	this.sortAndCount(mid, high)
 
-	count :=0
-	i:= mid;
-	
-	for k:=0; k < mid; k++ {
-		for i < high && (*pfSum[i] - pfSum[k]) < low {
+	arr := this.pfSum
+
+	i := mid
+	j := mid
+	// a subset sum =>  ---arr[k]{-----}arr[i]----
+	for k := 0; k < mid; k++ {
+		for i < high && (arr[i]-arr[k]) < this.lower {
 			i++
 		}
-	} 
 
+		for j < high && (arr[j]-arr[k]) <= this.upper {
+			j++
+		}
 
-	merge(pfSum, low, mid, high)
+	}
 
-	return count
+	this.count += (j - i)
+	this.merge(low, mid, high)
 
 }
 
-func merge(pfSum *[]int, low, mid, high int){
+func (this *Input) merge(low, mid, high int) {
 	//merge step
-	arr := *pfSum	
-	lowEnd := arr[low:mid];
-	highEnd := arr[mid:high];
 
-	i:=0
-	j:=0
+	lowEnd := this.pfSum[low:mid]
+	highEnd := this.pfSum[mid:high]
+
+	i := 0
+	j := 0
 	k := 0
 	for i < mid && j < high {
-		if lowEnd[i] <= highEnd[j]{
-			arr[k] = lowEnd[i]
+		if lowEnd[i] <= highEnd[j] {
+			this.pfSum[k] = lowEnd[i]
 			k++
-			i++ 
+			i++
 		} else {
-			arr[k] = highEnd[j];
+			this.pfSum[k] = highEnd[j]
 			k++
 			j++
 		}
 	}
 
 	for i < mid {
-		arr[k] = lowEnd[i]
+		this.pfSum[k] = lowEnd[i]
 		k++
-		i++ 
+		i++
 	}
 
 	for j < high {
-		arr[k] = highEnd[j]
+		this.pfSum[k] = highEnd[j]
 		k++
 		j++
 	}
 }
 
-func countSumRange(nums []int, idxDiff int, valDiff int) int {
+func countRangeSum(nums []int, lower int, upper int) int {
 
-	pfSum := make([]int, len(nums));
+	pfSum := make([]int, len(nums))
 
-	for idx, x := range nums {
-		pfSum[idx] = pfSum[idx-1] + x;	
+	for idx := 0; idx < len(nums); idx++ {
+		pfSum[idx] = pfSum[idx-1] + nums[idx]
 	}
 
-	return sortAndCount(&pfSum, 0, len(pfSum))
- 
+	input := Input{pfSum, lower, upper, 0}
+	input.sortAndCount(0, len(pfSum))
+	return input.count
+
 }

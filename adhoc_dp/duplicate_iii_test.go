@@ -12,7 +12,7 @@ func (this Stack) peek() int {
 	return this.list[len(this.list)-1]
 }
 
-func (this Stack) isNotEmpty() {
+func (this Stack) isNotEmpty() bool {
 	return len(this.list) > 0
 }
 
@@ -26,49 +26,72 @@ func NewStack() Stack {
 	return Stack{list: make([]int, 0)}
 }
 
-func calcNextSmaller(nums []int) []int {
+func calcRightSmaller(nums []int) []int {
 	stack := NewStack()
-	nextGreater := make([]int, len(nums), len(nums))
+	rightSmaller := make([]int, len(nums), len(nums))
 
 	for idx := 0; idx < len(nums); idx++ {
 
-		for stack.isNotEmpty() && nums[stack.peek()] > nums[idx] {
-			x := stack.pop()
+		rightSmaller[idx] = -1
+		for stack.isNotEmpty() && nums[stack.peek()] >= nums[idx] {
+			top := stack.pop()
 			// nums[idx] is nearest smaller element to nums[x]
-			phi[x] = idx
+			rightSmaller[top] = idx
 
 		}
 
 		stack.push(idx)
 	}
 
-	return nextGreater
+	return rightSmaller
 }
 
-func calcPrevGreater(nums []int) []int {
+func calcLeftSmaller(nums []int) []int {
 	stack := NewStack()
-	nextGreater := make([]int, len(nums), len(nums))
+	leftSmaller := make([]int, len(nums), len(nums))
 
-	for idx := 0; idx < len(nums); idx++ {
-
-		for stack.isNotEmpty() && nums[stack.peek()] > nums[idx] {
-			x := stack.pop()
+	for idx := len(nums) - 1; idx >= 0; idx-- {
+		leftSmaller[idx] = -1
+		for stack.isNotEmpty() && nums[stack.peek()] >= nums[idx] {
+			top := stack.pop()
 			// nums[idx] is nearest smaller element to nums[x]
-			phi[x] = idx
+			leftSmaller[top] = idx
 
 		}
 
 		stack.push(idx)
 	}
 
-	return nextGreater
+	return leftSmaller
+}
+
+func abs(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
 }
 
 func containsNearbyAlmostDuplicate(nums []int, indexDiff int, valueDiff int) bool {
 
-	for idx := 0; idx < len(nums); idx++ {
-		jdx := phi[idx]
+	leftSmaller := calcLeftSmaller(nums)
+	rightSmaller := calcRightSmaller(nums)
 
+	for idx := 0; idx < len(nums); idx++ {
+		leftIdx := leftSmaller[idx]
+		rightIdx := rightSmaller[idx]
+		if leftIdx != -1 && idx-leftIdx <= indexDiff {
+			if abs(nums[idx]-nums[leftIdx]) <= valueDiff {
+				return true
+			}
+		}
+		if rightIdx != -1 && rightIdx-idx <= indexDiff {
+			if abs(nums[idx]-nums[rightIdx]) <= valueDiff {
+				return true
+			}
+		}
 	}
+
+	return false
 
 }
