@@ -11,12 +11,13 @@ func topKFrequent(nums []int, k int) []int {
 	bucketLen := len(nums)
 	freqBucket := make([][]int, bucketLen+1, bucketLen+1)
 
-	// all items vals > 0 so bucketLen + 1
-	for key, val := range freqMap {
-		if freqBucket[val] == nil {
-			freqBucket[val] = make([]int, 0)
+	// there can be multiple x with same frequency f
+	// bucketing all key(num) items that has same frequency
+	for key, freq := range freqMap {
+		if freqBucket[freq] == nil {
+			freqBucket[freq] = make([]int, 0)
 		}
-		freqBucket[val] = append(freqBucket[val], key)
+		freqBucket[freq] = append(freqBucket[freq], key)
 	}
 
 	result := make([]int, 0)
