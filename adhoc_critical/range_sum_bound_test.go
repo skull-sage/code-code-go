@@ -6,34 +6,50 @@ import (
 )
 
 type Input struct {
-	pfSum []int
+	 
 	lower int
 	upper int
 	count int
 }
 
-func (this *Input) sortAndCount(low, high, level int) {
+func sortAndCount(arrSlice []int, input *Input, level int) []int {
 
-	if low >= high {
-		return
+
+	if len(arrSlice) <=1 {
+
+		if len(arrSlice) == 1 {
+			input.count++
+		}
+		return arrSlice
 	}
+	 
 
-	mid := low + (high-low)/2 // l = 2, h = 7, m = 4
+	mid := len(arrSlice)/2 // l = 2, h = 7, m = 4
 
-	this.sortAndCount(low, mid, level+1)
-	this.sortAndCount(mid+1, high, level+1)
+	leftSlice := arrSlice[0:mid]
+	rightSlice := arrSlice[mid:len(arrSlice)]
 
-	i := mid + 1
-	j := mid + 1
+	leftSlice = sortAndCount(leftSlice, input, level+1)  // 0-1
+	rightSlice = sortAndCount(rightSlice, input, level+1) // 2-3
+
+	
+	return merge(leftSlice, rightSlice, level)
+
+}
+
+func countRange(leftSlice, rightSlice []int, input *Input){
+
+	i := 0
+	j := 0
 	// a subset sum =>  ---arr[k]{-----}arr[i]----
-	for k := low; k <= mid; k++ {
-		for i <= high && (this.pfSum[i]-this.pfSum[k]) < this.lower {
+	for k := 0; k < len(leftSlice); k++ {
+		for i < len(rightSlice) && (rightSlice[i] - leftSlice[k]) < input.lower {
 			i++
 		}
 
-		//j = i
+		j = i
 		//fmt.Printf("j=%d, k=%d %d", j, k, (this.pfSum[j] - this.pfSum[k]))
-		for j <= high && (this.pfSum[j]-this.pfSum[k]) <= this.upper {
+		for j < len(rightSlice) && (rightSlice[j] - leftSlice[k]) <= input.upper {
 			//fmt.Printf("j=%d, k=%d %d", j, k, (this.pfSum[j] - this.pfSum[k]))
 			j++
 		}
@@ -41,54 +57,45 @@ func (this *Input) sortAndCount(low, high, level int) {
 	}
 
 	//fmt.Println(low, mid, high, "j", j, "i", i)
-	this.count += (j - i)
-	this.merge(low, mid, high, level)
-
+	input.count += (j - i)
 }
 
-func (this *Input) merge(low, mid, high, level int) {
+func merge(leftSlice []int, rightSlice []int, level int) []int {
 	//merge step
 
-	left := make([]int, (mid + 1 - low)) //this.pfSum[low : mid+1]
-	copy(left, this.pfSum[low:mid+1])
+	mergeCopy := make([]int, len(leftSlice)+len(rightSlice))
 
-	right := make([]int, (high - mid))
-	copy(right, this.pfSum[mid+1:high+1])
-
-	fmt.Println("level", level, "l:", low, "m:", mid, "h:", high, "=> left", left, "right", right)
 	i := 0
 	j := 0
 	k := 0
-	for i < len(left) && j < len(right) {
-		if left[i] <= right[j] {
-			this.pfSum[k] = left[i]
+	for i < len(leftSlice) && j < len(rightSlice) {
+		if leftSlice[i] <= rightSlice[j] {
+			mergeCopy[k] = leftSlice[i]
 			k++
 			i++
 		} else {
-			this.pfSum[k] = right[j]
+			mergeCopy[k] = rightSlice[j]
 			k++
 			j++
 		}
 
-		fmt.Println("# merging: ", i, j, k, this.pfSum)
 	}
 
-	for i < len(left) {
-		this.pfSum[k] = left[i]
+	for i < len(leftSlice) {
+		mergeCopy[k] = leftSlice[i]
 		k++
 		i++
 
 	}
 
-	fmt.Println("# merging: ", i, j, k, this.pfSum)
-
-	for j < len(right) {
-		this.pfSum[k] = right[j]
+	for j < len(rightSlice) {
+		mergeCopy[k] = rightSlice[j]
 		k++
 		j++
 	}
 
-	fmt.Println("# after merging:", this.pfSum)
+	fmt.Println("# after merging:", mergeCopy)
+	return mergeCopy
 }
 
 func countRangeSum(nums []int, lower int, upper int) int {
@@ -102,15 +109,16 @@ func countRangeSum(nums []int, lower int, upper int) int {
 	}
 
 	fmt.Println("before sorting", pfSum)
-	input := Input{pfSum, lower, upper, 0}
-	input.sortAndCount(0, len(pfSum)-1, 0)
-	fmt.Println("after sorting", input.pfSum)
+	input := Input{lower, upper, 0}
+	pfSum = sortAndCount(pfSum, &input, 0)
+	fmt.Println("after sorting", pfSum)
 	return input.count
 
 }
 
 func TestRangeCount(t *testing.T) {
-	nums := []int{-2, 5, -1}
+
+	nums := []int{-1}
 	lower := -2
 	upper := 5
 
