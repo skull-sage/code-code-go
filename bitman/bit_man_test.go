@@ -8,10 +8,12 @@ import (
 func TestFindLowestSetBit(t *testing.T) {
 	x := 4
 
-	fmt.Printf("x:%b, x ^ (x-1):%b\n", x, x^(x-1))
+	fmt.Printf("x:%b, x ^ (x-1):%b", x, x^(x-1))
 
 	num := x & (x ^ (x - 1))
-	fmt.Printf("x=%b, lsb=%d\n", x, num)
+	fmt.Printf("lowest-sb of (x)=%d\n", num)
+
+	fmt.Printf("least-significant-bit of (x)=%d\n", (x & -x))
 }
 
 func TestCountSetBit(t *testing.T) {
