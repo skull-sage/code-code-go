@@ -5,6 +5,29 @@ import (
 	"testing"
 )
 
+func TestFindLowestSetBit(t *testing.T) {
+	x := 4
+
+	fmt.Printf("x:%b, x ^ (x-1):%b\n", x, x^(x-1))
+
+	num := x & (x ^ (x - 1))
+	fmt.Printf("x=%b, lsb=%d\n", x, num)
+}
+
+func TestCountSetBit(t *testing.T) {
+	// hamming weight: counting number of set-bit (1)
+	num := 111 - 1
+	bitCount := 0
+
+	fmt.Printf("in binary %b\n", num)
+	for num != 0 {
+		bitCount++
+		num = num & (num - 1)
+	}
+
+	fmt.Println("bit count\n", bitCount)
+}
+
 func TestBitOps(t *testing.T) {
 	// to know k-th bit use AND
 	x := 36
@@ -27,33 +50,7 @@ func TestBitOps(t *testing.T) {
 
 }
 
-func findingLowestSetBit() {
-	x := 4
+func TestBitAnd(t *testing.T) {
 
-	fmt.Printf("x:%b, x ^ (x-1):%b\n", x, x^(x-1))
-
-	num := x & (x ^ (x - 1))
-	fmt.Printf("x=%b, lsb=%d\n", x, num)
-}
-
-func countSetBitExample() {
-	// hamming weight: counting number of set-bit (1)
-	num := 111 - 1
-	bitCount := 0
-
-	fmt.Printf("in binary %b\n", num)
-	for num != 0 {
-		bitCount++
-		num = num & (num - 1)
-	}
-
-	fmt.Println("bit count\n", bitCount)
-}
-
-func TestBitMan(t *testing.T) {
-	//findingLowestSetBit() // or right most set bit
-	//countSetBitExample()
-	//ClearLowestSetBitExample()
-	//findUniqueElmInArr() // where all other element appear twice
-
+	fmt.Printf("%b %b x&(-x)=%b\n", 5, -5, 5&(-5))
 }
