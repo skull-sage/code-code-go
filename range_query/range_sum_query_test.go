@@ -87,7 +87,7 @@ type NumArray struct {
 	root   *SegmentNode
 }
 
-func Constructor(nums []int) NumArray {
+func ConstructorTree(nums []int) NumArray {
 
 	root := buildTree(&nums, 0, len(nums)-1)
 	return NumArray{numArr: nums, root: root}
