@@ -1,4 +1,4 @@
-package adhoc_critical
+package range_query
 
 import (
 	"fmt"

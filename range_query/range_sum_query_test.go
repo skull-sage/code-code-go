@@ -1,4 +1,4 @@
-package adhoc_critical
+package range_query
 
 type SegmentNode struct {
 	start    int
@@ -40,29 +40,47 @@ func updateTree(node *SegmentNode, idx, newVal int) {
 	node.rangeVal = node.left.rangeVal + node.right.rangeVal
 }
 
-func queryRange(node *SegmentNode, l, r int) int {
-	// out of range
-	if node == nil || node.start > r || node.end < l {
-		// we have reach to a node where there is no overlapp
-		return 0
-	}
-
-	// found match
-	if node.start == l && node.end == r {
+func queryTail(node *SegmentNode, r int) int {
+	if r == node.end {
 		return node.rangeVal
 	}
 
 	if r <= node.left.end {
-		return queryRange(node.left, l, r)
-	} else if l >= node.right.start {
-		return queryRange(node.right, l, r)
+		return queryTail(node.left, r)
 	} else {
-		leftVal := queryRange(node.left, l, node.left.end)
-		rightVal := queryRange(node.right, node.right.start, r)
-		return leftVal + rightVal
+		return node.left.rangeVal + queryTail(node.right, r)
 	}
 
 }
+
+func queryRange(node *SegmentNode, l, r int) int {
+	return queryTail(node, r) - queryTail(node, l)
+}
+
+// func queryRange(node *SegmentNode, l, r int) int {
+// 	// out of range
+// 	if node == nil || node.start > r || node.end < l {
+// 		// we have reach to a node where there is no overlapp
+// 		return 0
+// 	}
+
+// 	// found match
+// 	if node.start == l && node.end == r {
+// 		return node.rangeVal
+// 	}
+
+// 	if r <= node.left.end {
+// 		return queryRange(node.left, l, r)
+// 	} else if l >= node.right.start {
+// 		return queryRange(node.right, l, r)
+// 	} else {
+// 		mid := l + (r-l)/2
+// 		leftVal := queryRange(node.left, l, mid)
+// 		rightVal := queryRange(node.right, mid, r)
+// 		return leftVal + rightVal
+// 	}
+
+// }
 
 type NumArray struct {
 	numArr []int
