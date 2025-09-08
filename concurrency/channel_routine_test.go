@@ -30,3 +30,7 @@ func TestRegularChannel(t *testing.T) {
 	fmt.Println("sum", sum, "product", product)
 
 }
+
+func TestChanBlock(t *testing.T) {
+
+}
