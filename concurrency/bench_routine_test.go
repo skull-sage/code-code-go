@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func BenchmarkContextSwitch(t *testing.B) {
+func BenchmarkContextSwitch(b *testing.B) {
 	var data struct{}
 	fmt.Println(data)
 }
