@@ -37,7 +37,7 @@ func TestChanBlock(t *testing.T) {
 	signalChan := make(chan int)
 
 	var worker func() = func() {
-		fmt.Println("Reciving Channel will block the routine until a data arrives")
+		fmt.Println("worker routine: will be blocked until a data arrives")
 		time.Sleep(3 * time.Second)
 		val := <-signalChan
 		fmt.Println("Recieved", val, "let me think for a second")
@@ -53,23 +53,50 @@ func TestChanBlock(t *testing.T) {
 
 }
 
-func TestSemaphor(t *testing.T) {
-	// buffered channel as a semaphore blocking mechanism
-
-	signalBuff := make(chan int, 3)
+func TestBuffBlock(t *testing.T) {
+	signalChan := make(chan int, 1)
 
 	var worker func() = func() {
-		fmt.Println("Reciving Buff Channel will not block the routine until a data arrives")
-		val := <-signalBuff
+		fmt.Println("worker routine: will be blocked until a data arrives")
+		time.Sleep(3 * time.Second)
+		val := <-signalChan
 		fmt.Println("Recieved", val, "let me think for a second")
 		time.Sleep(1 * time.Second)
 		fmt.Println("Papa here is my ans:", val*2)
 	}
 
 	go worker()
-	time.Sleep(2 * time.Second)
-	signalBuff <- 20
+	signalChan <- 20
+	fmt.Println("main routine:", "I will be here even if worker is sleeping as signal is now buffered")
+	signalChan <- 10
+	fmt.Println("I will be here   as worker received first sent item")
+}
 
-	fmt.Println("nah! quiting")
+func TestSemaphor(t *testing.T) {
+	// buffered channel as a semaphore blocking mechanism
+
+	signalBuff := make(chan bool, 3)
+
+	// worker will recieve it and send it
+	// a recive must follow  a send:
+	counter := 0
+	var worker func(wid int) = func(wid int) {
+		// sending to buffer gets blocked only after buff is full
+		counter++
+		signalBuff <- true
+		time.Sleep(3 * time.Second)
+		fmt.Println("Routine id:", wid, "printing hi")
+		<-signalBuff // receiving
+
+	}
+
+	fmt.Println("main routine will be blocked after 3 counter")
+	for id := range 10 {
+		go worker(id)
+		fmt.Println("counter", counter)
+	}
+
+	// give other routine before exiting
+	time.Sleep(10 * time.Second)
 
 }
