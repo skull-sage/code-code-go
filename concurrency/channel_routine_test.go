@@ -71,32 +71,3 @@ func TestBuffBlock(t *testing.T) {
 	signalChan <- 10
 	fmt.Println("I will be here   as worker received first sent item")
 }
-
-func TestSemaphor(t *testing.T) {
-	// buffered channel as a semaphore blocking mechanism
-
-	signalBuff := make(chan bool, 3)
-
-	// worker will recieve it and send it
-	// a recive must follow  a send:
-	counter := 0
-	var worker func(wid int) = func(wid int) {
-		// sending to buffer gets blocked only after buff is full
-		counter++
-		signalBuff <- true
-		time.Sleep(3 * time.Second)
-		fmt.Println("Routine id:", wid, "printing hi")
-		<-signalBuff // receiving
-
-	}
-
-	fmt.Println("main routine will be blocked after 3 counter")
-	for id := range 10 {
-		go worker(id)
-		fmt.Println("counter", counter)
-	}
-
-	// give other routine before exiting
-	time.Sleep(10 * time.Second)
-
-}
