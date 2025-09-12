@@ -2,6 +2,7 @@ package concurrency
 
 import (
 	"fmt"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -19,40 +20,41 @@ func (sb *Semaphore) release() {
 	<-sb.signalBuff
 }
 
+func CreateSemaphore(capacity int) Semaphore {
+	return Semaphore{signalBuff: make(chan struct{}, capacity)}
+}
+
 func TestSemaphor(t *testing.T) {
 	// buffered channel as a semaphore blocking mechanism
 
+	type task struct {
+		id       int
+		workTime int
+	}
+	// we will use waitgroup to make calling goroutine wait (in this context main to wait)
 	var wg sync.WaitGroup
-	semaphore := Semaphore{signalBuff: make(chan struct{}, 3)}
-	cArr := make([]int, 0)
-	// worker will recieve it and send it
-	// a recive must follow  a send:
-	var worker func(counter int) = func(counter int) {
+	semaphore := CreateSemaphore(3)
+	result := make([]string, 10)
+
+	work := func(t task) {
 		defer wg.Done()
-		// sending to buffer gets blocked only after buff is full
-		fmt.Println("# Goroutine entering: ", counter)
+		defer semaphore.release()
+
+		fmt.Println("# Processing task", t.id)
+		time.Sleep(time.Duration(t.workTime) * time.Second)
+		result = append(result, strconv.Itoa(t.id)+" Completed")
+	}
+
+	for id := range len(result) {
+		task := task{id, 3}
+		wg.Add(1)
+		// process task
 		semaphore.acquire()
-		time.Sleep(3 * time.Second)
-		fmt.Println("# Goroutine processing: ", counter)
-		cArr = append(cArr, counter)
-		semaphore.release() // receiving
-		fmt.Println("# Semaphore released: ", counter)
+		go work(task)
+		fmt.Println(id, "triggered")
 	}
 
-	fmt.Println("Semaphore with capacity 3")
-	wg.Add(10)
-	for counter := range 10 {
-
-		// critical section start we want 3 worker to work at a time
-		go worker(counter)
-		//time.Sleep(5 * time.Millisecond)
-		//critical section ends
-
-	}
-
-	// give other routine sometime to work before exiting
+	// make calling wg to wait
 	wg.Wait()
-
-	fmt.Println(cArr)
 
 }
