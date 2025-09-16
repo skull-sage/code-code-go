@@ -12,47 +12,49 @@ type SyncCounter struct {
 	val     int
 }
 
-func (sc *SyncCounter) get(sleepTime int) int {
+func readMultiply(goId int, workTime int, sc *SyncCounter, x int) {
+
+	fmt.Println("# Read Routine", goId, "is trying to  read-lock")
 	sc.rwMutex.RLock()
 	defer sc.rwMutex.RUnlock()
-	time.Sleep(time.Duration(sleepTime) * time.Second)
-	return sc.val
+
+	fmt.Println("=> Read Routine", goId, "acquired read-lock")
+	time.Sleep(time.Duration(workTime) * time.Second)
+	result := sc.val * x
+	fmt.Println("=> Read Routine", goId, " computed ", result)
 
 }
 
-func readMultiply(goId int, sc SyncCounter, x int) {
+func increament(goId int, workTime int, sc *SyncCounter) {
 
-	sleepTime := 3 - goId
-	result := sc.get(sleepTime) * x
-	fmt.Println("# Read Routine", goId, "=>", result)
+	fmt.Println("# Write Routine", goId, "is trying to write-lock")
+	sc.rwMutex.Lock()
+	defer sc.rwMutex.Unlock()
 
-}
+	fmt.Println("=> Write Lock acquired")
+	time.Sleep(time.Duration(workTime) * time.Second)
+	sc.val++
 
-func increament(counter SyncCounter) {
-	counter.rwMutex.Lock()
-	defer counter.rwMutex.Unlock()
+	fmt.Println("=> Write Routine Computed: ", sc.val)
 
-	time.Sleep(1 * time.Second)
-	counter.val++
 }
 
 func TestRWMutex(t *testing.T) {
 
 	counter := SyncCounter{val: 2}
 
-	var wg sync.WaitGroup
+	go readMultiply(1, 1, &counter, 5)
+	time.Sleep(100 * time.Microsecond)
 
-	for idx := range 3 {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			// recommended way to recive a result from routine is using channel-select
-			result := readMultiply(counter, idx, 3-idx)
-			time.Sleep(100 * time.Millisecond)
-			fmt.Println("routine", idx, result)
-		}()
-	}
-
-	wg.Wait()
+	go increament(2, 3, &counter)
+	time.Sleep(100 * time.Microsecond)
+	
+	go readMultiply(3, 2, &counter, 5)
+	time.Sleep(100 * time.Microsecond)
+	
+	go readMultiply(4, 1, &counter, 5)
+	
+	
+	time.Sleep(15 * time.Second)
 
 }
