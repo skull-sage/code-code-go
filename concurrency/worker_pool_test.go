@@ -39,7 +39,7 @@ func TestWorkerPool(t *testing.T) {
 		fmt.Println(r)
 	}
 
-	//for a bounded job scenerio, you generally shoot all the job
+	//NOTE: for a bounded job scenerio, you generally shoot all the job
 	// close job channel
 	// read results from result channel
 	// close result channel

@@ -9,7 +9,7 @@ type Solution struct {
 	prefixW []int
 }
 
-func Constructor(w []int) Solution {
+func NewSolution(w []int) Solution {
 	prefixW := make([]int, len(w))
 	prefixW[0] = w[0]
 	for idx := 1; idx < len(w); idx++ {
