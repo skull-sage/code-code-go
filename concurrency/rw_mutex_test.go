@@ -35,7 +35,7 @@ func increament(goId int, workTime int, sc *SyncCounter) {
 	time.Sleep(time.Duration(workTime) * time.Second)
 	sc.val++
 
-	fmt.Println("=> Write Routine Computed: ", sc.val)
+	fmt.Println("=> Write Routine Counter Incremented: ", sc.val)
 
 }
 
@@ -44,17 +44,16 @@ func TestRWMutex(t *testing.T) {
 	counter := SyncCounter{val: 2}
 
 	go readMultiply(1, 1, &counter, 5)
-	time.Sleep(100 * time.Microsecond)
 
+	time.Sleep(100 * time.Microsecond)
 	go increament(2, 3, &counter)
-	time.Sleep(100 * time.Microsecond)
 	
+	time.Sleep(300 * time.Microsecond)
 	go readMultiply(3, 2, &counter, 5)
+	
 	time.Sleep(100 * time.Microsecond)
-	
 	go readMultiply(4, 1, &counter, 5)
-	
-	
+
 	time.Sleep(15 * time.Second)
 
 }
